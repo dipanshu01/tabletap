@@ -1884,6 +1884,40 @@ function updateCart(){const ids=Object.keys(cart);const cnt=ids.reduce((s,id)=>s
 function renderCartScreen(){const ids=Object.keys(cart).filter(id=>cart[id]>0);const el=document.getElementById('cart-list');if(!ids.length){el.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted)"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">Empty Cart</div><div>Add items from the menu</div></div>`;['s-sub','s-gst','s-tot'].forEach(id=>document.getElementById(id).textContent='Rs 0');return;}el.innerHTML=ids.map(id=>{const item=getItem(parseInt(id));return`<div class="cart-item"><div class="ci-img">${item.img?`<img src="${item.img}">`:(item.emoji||'')}</div><div class="ci-info"><div class="ci-name">${item.name}</div><div class="ci-unit">Rs ${item.price} each</div></div><div class="qty-ctl"><button class="qty-btn" onclick="chgQ(${id},-1)">−</button><span class="qty-num">${cart[id]}</span><button class="qty-btn" onclick="chgQ(${id},1)">+</button></div></div>`;}).join('');const sub=ids.reduce((s,id)=>s+getItem(parseInt(id)).price*cart[id],0);
   document.getElementById('s-tot').textContent='Rs '+sub;}
 function chgQ(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];updateCart();}
+async function confWaiter(){
+  closeM('m-waiter');
+  const time=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  
+  // Get restaurant ID from URL if R not set
+  const urlParams=new URLSearchParams(window.location.search);
+  const restoId = (R && R.id && R.id!=='demo') ? R.id : urlParams.get('resto');
+  
+  // Demo mode
+  if(!restoId || restoId==='demo'){
+    calls.unshift({table:curTable,time,type:'Waiter Assistance Requested'});
+    updateBadges();
+    notify('Waiter Called','Table '+curTable+' — Waiter aa raha hai!');
+    return;
+  }
+  
+  // Real mode — save to Supabase
+  try{
+    const{error}=await sb.from('waiter_calls').insert({
+      restaurant_id:restoId,
+      table_number:curTable,
+      status:'pending'
+    });
+    if(error){
+      console.log('Waiter call DB error:',error);
+      throw error;
+    }
+    notify('Waiter Called','Table '+curTable+' — Waiter aa raha hai! 🙏');
+  }catch(e){
+    console.log('Waiter call error:',e);
+    notify('Waiter Called','Table '+curTable+' — Waiter aa raha hai!');
+  }
+}
+
 let trackingOrderId = null;
 let trackingInterval = null;
 
@@ -1899,7 +1933,9 @@ async function placeOrder(){
   
   let dbOrderId = null;
   try{
-    const{data}=await sb.from('orders').insert({restaurant_id:R?.id||'demo',table_number:curTable,items:JSON.stringify(items),total_amount:total,status:'pending'}).select().single();
+    const urlParams2=new URLSearchParams(window.location.search);
+    const restoId2=(R&&R.id&&R.id!=='demo')?R.id:(urlParams2.get('resto')||'demo');
+    const{data}=await sb.from('orders').insert({restaurant_id:restoId2,table_number:curTable,items:JSON.stringify(items),total_amount:total,status:'pending'}).select().single();
     if(data) dbOrderId = data.id;
   }catch(e){}
   
@@ -2032,7 +2068,9 @@ function updateTrackingUI(status){
   }
 }
 function rateStar(type,val){ratings[type]=val;document.querySelectorAll(`#s${type} .star`).forEach((s,i)=>s.classList.toggle('on',i<val));}
-async function submitFeedback(){if(!ratings.f||!ratings.s){notify('Incomplete','Rate both food and service','error');return;}const text=document.getElementById('fb-text').value||'No comment';feedbacks.unshift({table:curTable,food:ratings.f,svc:ratings.s,text,time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})});try{await sb.from('feedbacks').insert({restaurant_id:R?.id||'demo',table_number:curTable,food_rating:ratings.f,service_rating:ratings.s,comment:text});}catch(e){}ratings={f:0,s:0};document.getElementById('fb-text').value='';document.querySelectorAll('.star').forEach(s=>s.classList.remove('on'));notify('Thank You','Feedback received');showS('s-menu');}
+async function submitFeedback(){if(!ratings.f||!ratings.s){notify('Incomplete','Rate both food and service','error');return;}const text=document.getElementById('fb-text').value||'No comment';feedbacks.unshift({table:curTable,food:ratings.f,svc:ratings.s,text,time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})});try{const urlParams3=new URLSearchParams(window.location.search);
+    const restoId3=(R&&R.id&&R.id!=='demo')?R.id:(urlParams3.get('resto')||'demo');
+    await sb.from('feedbacks').insert({restaurant_id:restoId3,table_number:curTable,food_rating:ratings.f,service_rating:ratings.s,comment:text});}catch(e){}ratings={f:0,s:0};document.getElementById('fb-text').value='';document.querySelectorAll('.star').forEach(s=>s.classList.remove('on'));notify('Thank You','Feedback received');showS('s-menu');}
 </script>
 <!-- Category Management Modal -->
 <div class="mov" id="m-cats">

@@ -1099,11 +1099,8 @@ textarea.inp { resize: vertical; min-height: 100px; }
   <div class="page-nav"><button class="back-btn" onclick="showScreen('s-menu')">←</button><div class="page-title">Your Cart</div></div>
   <div class="cart-items" id="cart-list"></div>
   <div class="cart-summary">
-    <div class="sum-row"><span>Subtotal</span><span id="s-sub">Rs 0</span></div>
-    <div class="sum-row" style="border-bottom:none" id="cart-gst-row"><span id="cart-gst-label">GST (5%)</span><span id="s-gst">Rs 0</span></div>
     <div class="sum-total" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><span>Total</span><span id="s-tot">Rs 0</span></div>
   </div>
-  <div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:6px">* GST billing pe add hogi</div>
   <button class="place-btn" onclick="placeOrder()">Place Order</button>
 </div>
 
@@ -1605,15 +1602,7 @@ function getItem(id){return menu.find(i=>i.id===id);}
 function addCart(id){cart[id]=(cart[id]||0)+1;updateCart();notify('Added',getItem(id).name+' added to cart');}
 function updateCart(){const ids=Object.keys(cart);const cnt=ids.reduce((s,id)=>s+cart[id],0);const tot=ids.reduce((s,id)=>s+getItem(parseInt(id)).price*cart[id],0);document.getElementById('cf-cnt').textContent=cnt;document.getElementById('cf-total').textContent=tot;cnt>0?document.getElementById('cart-float').classList.add('vis'):document.getElementById('cart-float').classList.remove('vis');renderCartScreen();}
 function renderCartScreen(){const ids=Object.keys(cart).filter(id=>cart[id]>0);const el=document.getElementById('cart-list');if(!ids.length){el.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted)"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">Empty Cart</div><div>Add items from the menu</div></div>`;['s-sub','s-gst','s-tot'].forEach(id=>document.getElementById(id).textContent='Rs 0');return;}el.innerHTML=ids.map(id=>{const item=getItem(parseInt(id));return`<div class="cart-item"><div class="ci-img">${item.img?`<img src="${item.img}">`:(item.emoji||'')}</div><div class="ci-info"><div class="ci-name">${item.name}</div><div class="ci-unit">Rs ${item.price} each</div></div><div class="qty-ctl"><button class="qty-btn" onclick="chgQ(${id},-1)">−</button><span class="qty-num">${cart[id]}</span><button class="qty-btn" onclick="chgQ(${id},1)">+</button></div></div>`;}).join('');const sub=ids.reduce((s,id)=>s+getItem(parseInt(id)).price*cart[id],0);
-  const gstRate=getGSTRate();
-  const gst=Math.round(sub*gstRate/100);
-  document.getElementById('s-sub').textContent='Rs '+sub;
-  const gstRow=document.getElementById('cart-gst-row');
-  const gstLabel=document.getElementById('cart-gst-label');
-  if(gstRow) gstRow.style.display=gstRate>0?'flex':'none';
-  if(gstLabel) gstLabel.textContent='GST ('+gstRate+'%)';
-  document.getElementById('s-gst').textContent='Rs '+gst;
-  document.getElementById('s-tot').textContent='Rs '+(sub+gst);}
+  document.getElementById('s-tot').textContent='Rs '+sub;}
 function chgQ(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];updateCart();}
 async function placeOrder(){
   if(!Object.keys(cart).length){notify('Cart Empty','Add items first','error');return;}

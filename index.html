@@ -1986,71 +1986,49 @@ function startTracking(dbId, localId){
 function updateTrackingUI(status){
   const now = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   
-  if(status==='preparing'){
-    // Activate preparing step
-    document.getElementById('step-preparing').style.opacity='1';
-    document.getElementById('step-preparing-dot').style.background='var(--amber)';
-    document.getElementById('step-preparing-dot').textContent='👨‍🍳';
-    document.getElementById('step-preparing-dot').classList.add('track-pulse');
-    document.getElementById('step-preparing-time').textContent=now;
-    document.getElementById('timer-display').textContent='~10 min';
-    document.getElementById('track-icon').textContent='👨‍🍳';
-    document.getElementById('track-title').textContent='Khana Ban Raha Hai!';
-    document.getElementById('track-sub').textContent='Chef aapka order prepare kar raha hai';
+  if(status==='preparing' || status==='ready'){
+    const s2=document.getElementById('tp-step2');
+    const d2=document.getElementById('tp-dot2');
+    const t2=document.getElementById('tp-time2');
+    if(s2) s2.style.opacity='1';
+    if(d2){
+      d2.style.background=status==='ready'?'var(--green)':'#f59e0b';
+      d2.style.border='none';
+      d2.textContent=status==='ready'?'✓':'🍳';
+      if(status==='preparing')d2.classList.add('track-pulse');
+      else d2.classList.remove('track-pulse');
+    }
+    if(t2&&!t2.textContent)t2.textContent=now;
+    const ms=document.getElementById('tp-main-status');
+    const timer=document.getElementById('tp-timer');
+    const timerSub=document.getElementById('tp-timer-sub');
+    if(status==='preparing'){
+      if(ms)ms.textContent='Khana Ban Raha Hai 🍳';
+      if(timer)timer.textContent='~10 min';
+      if(timerSub)timerSub.textContent='Chef kaam kar raha hai! 👨‍🍳';
+    }
   }
   
   if(status==='ready'){
-    // Activate all steps
-    document.getElementById('step-preparing').style.opacity='1';
-    document.getElementById('step-preparing-dot').style.background='var(--green)';
-    document.getElementById('step-preparing-dot').textContent='✓';
-    document.getElementById('step-preparing-dot').classList.remove('track-pulse');
-    
-    document.getElementById('step-ready').style.opacity='1';
-    document.getElementById('step-ready-dot').style.background='var(--green)';
-    document.getElementById('step-ready-dot').textContent='🎉';
-    document.getElementById('step-ready-dot').classList.add('track-pulse');
-    document.getElementById('step-ready-time').textContent=now;
-    document.getElementById('step-ready-title').textContent='Delivered! 🎉';
-    document.getElementById('step-ready-sub').textContent='Aapka khana table pe aa gaya!';
-    
-    // Show delivered banner, hide timer
-    document.getElementById('timer-card').style.display='none';
-    document.getElementById('delivered-banner').style.display='block';
-    document.getElementById('track-icon').textContent='🎉';
-    document.getElementById('track-title').textContent='Delivered!';
-    document.getElementById('track-sub').textContent='Enjoy your meal! Khana aagaya!';
-    
-    // Play beep
-    playBeep();
-  }
-}
-async function confWaiter(){
-  closeM('m-waiter');
-  const time=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  
-  // For demo mode — add to local calls array
-  if(!R || R.id==='demo'){
-    calls.unshift({table:curTable,time,type:'Waiter Assistance Requested'});
-    updateBadges();
-    notify('Waiter Called','Table '+curTable+' — Waiter aa raha hai!');
-    return;
-  }
-  
-  // Real mode — save to Supabase (realtime will push to owner dashboard)
-  try{
-    const{error}=await sb.from('waiter_calls').insert({
-      restaurant_id:R.id,
-      table_number:curTable,
-      status:'pending'
-    });
-    if(error) throw error;
-    notify('Waiter Called','Table '+curTable+' — Waiter aa raha hai!');
-  }catch(e){
-    // Fallback: add locally
-    calls.unshift({table:curTable,time,type:'Waiter Assistance Requested'});
-    updateBadges();
-    notify('Waiter Called','Table '+curTable+' — Waiter aa raha hai!');
+    const s3=document.getElementById('tp-step3');
+    const d3=document.getElementById('tp-dot3');
+    const t3=document.getElementById('tp-time3');
+    const title3=document.getElementById('tp-step3-title');
+    const sub3=document.getElementById('tp-step3-sub');
+    if(s3)s3.style.opacity='1';
+    if(d3){d3.style.background='var(--green)';d3.style.border='none';d3.textContent='🎉';d3.classList.add('track-pulse');}
+    if(t3)t3.textContent=now;
+    if(title3)title3.textContent='Delivered! 🎉';
+    if(sub3)sub3.textContent='Khana table pe aa gaya!';
+    const timerCard=document.getElementById('tp-timer-card');
+    const delivered=document.getElementById('tp-delivered');
+    const ms=document.getElementById('tp-main-status');
+    if(timerCard)timerCard.style.display='none';
+    if(delivered)delivered.style.display='block';
+    if(ms)ms.textContent='Delivered! 🎉';
+    const trackBtn=document.getElementById('track-btn');
+    if(trackBtn)trackBtn.style.display='none';
+    playBeep();playBeep();
   }
 }
 function rateStar(type,val){ratings[type]=val;document.querySelectorAll(`#s${type} .star`).forEach((s,i)=>s.classList.toggle('on',i<val));}

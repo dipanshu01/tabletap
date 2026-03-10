@@ -498,7 +498,8 @@ textarea.inp { resize: vertical; min-height: 100px; }
 
 /* Cart */
 #s-cart.active, #s-feedback.active { display: block; }
-#s-success.active { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 80px 40px; }
+#s-success.active { display: none; }
+#s-track.active { display: block; }
 .page-nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 20px; height: 56px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 100; }
 .back-btn { background: none; border: 1.5px solid var(--border); color: var(--ink3); width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; transition: all .2s; border-radius: var(--r); }
 .back-btn:hover { border-color: var(--ink); color: var(--ink); }
@@ -1185,6 +1186,96 @@ textarea.inp { resize: vertical; min-height: 100px; }
   </div>
 </div>
 
+<!-- ORDER TRACKING PAGE -->
+<div class="screen" id="s-track" style="background:var(--bg);min-height:100vh">
+  <div style="background:var(--white);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100">
+    <button class="back-btn" onclick="showScreen('s-menu')">←</button>
+    <div>
+      <div style="font-family:var(--fd);font-size:17px">Order Tracking</div>
+      <div style="font-size:11px;color:var(--muted)" id="track-table-info">Table 1</div>
+    </div>
+    <div style="margin-left:auto">
+      <span id="track-order-badge" style="background:var(--ink);color:white;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600">Order #101</span>
+    </div>
+  </div>
+
+  <div style="max-width:480px;margin:0 auto;padding:20px 16px">
+
+    <!-- Live Status Card -->
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow)">
+      <div style="background:var(--ink);padding:14px 20px">
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:rgba(255,255,255,0.6);margin-bottom:4px">LIVE STATUS</div>
+        <div id="tp-main-status" style="font-family:var(--fd);font-size:22px;color:white">Order Placed ✓</div>
+      </div>
+      
+      <div style="padding:20px">
+        <!-- Step 1 -->
+        <div style="display:flex;align-items:center;gap:14px;padding-bottom:16px;position:relative">
+          <div style="position:absolute;left:17px;top:36px;width:2px;height:calc(100% - 16px);background:var(--border)" id="line1"></div>
+          <div id="tp-dot1" style="width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;color:white;font-size:15px;flex-shrink:0;z-index:1">✓</div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:14px">Order Received</div>
+            <div style="font-size:12px;color:var(--muted)">Kitchen ko order mil gaya</div>
+          </div>
+          <div id="tp-time1" style="font-size:11px;color:var(--muted);white-space:nowrap"></div>
+        </div>
+
+        <!-- Step 2 -->
+        <div style="display:flex;align-items:center;gap:14px;padding-bottom:16px;position:relative;opacity:0.4" id="tp-step2">
+          <div style="position:absolute;left:17px;top:36px;width:2px;height:calc(100% - 16px);background:var(--border)" id="line2"></div>
+          <div id="tp-dot2" style="width:36px;height:36px;border-radius:50%;background:var(--bg2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;z-index:1">🍳</div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:14px">Preparing</div>
+            <div style="font-size:12px;color:var(--muted)">Chef khana bana raha hai</div>
+          </div>
+          <div id="tp-time2" style="font-size:11px;color:var(--muted);white-space:nowrap"></div>
+        </div>
+
+        <!-- Step 3 -->
+        <div style="display:flex;align-items:center;gap:14px;opacity:0.4" id="tp-step3">
+          <div id="tp-dot3" style="width:36px;height:36px;border-radius:50%;background:var(--bg2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;z-index:1">🛎️</div>
+          <div style="flex:1">
+            <div id="tp-step3-title" style="font-weight:600;font-size:14px">On The Way</div>
+            <div id="tp-step3-sub" style="font-size:12px;color:var(--muted)">Waiter table pe leke aa raha hai</div>
+          </div>
+          <div id="tp-time3" style="font-size:11px;color:var(--muted);white-space:nowrap"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timer Card -->
+    <div id="tp-timer-card" style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid var(--gold);border-radius:var(--r);padding:16px 20px;margin-bottom:16px;text-align:center">
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:var(--gold);margin-bottom:6px">⏱ ESTIMATED TIME</div>
+      <div id="tp-timer" style="font-family:var(--fd);font-size:36px;color:var(--ink);margin-bottom:4px">~15 min</div>
+      <div id="tp-timer-sub" style="font-size:12px;color:var(--muted)">Thoda wait karein 😊</div>
+    </div>
+
+    <!-- Delivered Banner -->
+    <div id="tp-delivered" style="display:none;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:1px solid var(--green);border-radius:var(--r);padding:24px;text-align:center;margin-bottom:16px">
+      <div style="font-size:48px;margin-bottom:8px">🎉</div>
+      <div style="font-family:var(--fd);font-size:24px;color:#065f46;margin-bottom:4px">Khana Aa Gaya!</div>
+      <div style="font-size:13px;color:#047857">Enjoy your meal! Bon Appetit! 😋</div>
+    </div>
+
+    <!-- Order Items -->
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:var(--muted);margin-bottom:12px">YOUR ORDER</div>
+      <div id="tp-items" style="display:flex;flex-direction:column;gap:8px"></div>
+      <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px;display:flex;justify-content:space-between;font-weight:700;font-size:15px">
+        <span>Total</span><span id="tp-total" style="color:var(--gold)">Rs 0</span>
+      </div>
+    </div>
+
+    <!-- Auto refresh note -->
+    <div style="text-align:center;font-size:11px;color:var(--muted);margin-bottom:16px">
+      🔄 Status har 5 second mein auto-update hota hai
+    </div>
+
+    <button class="btn btn-outline" style="width:100%;padding:13px;margin-bottom:10px" onclick="showScreen('s-menu')">+ Aur Items Add Karein</button>
+    <button class="btn btn-ghost" style="width:100%;padding:11px" onclick="showScreen('s-feedback')">⭐ Feedback Dein</button>
+  </div>
+</div>
+
 <!-- FEEDBACK -->
 <div class="screen" id="s-feedback">
   <div class="page-nav"><button class="back-btn" onclick="showScreen('s-menu')">←</button><div class="page-title">Your Feedback</div></div>
@@ -1816,44 +1907,54 @@ async function placeOrder(){
   document.getElementById('step-received-time').textContent=time;
   
   // Reset tracking UI
-  resetTracking();
-  showS('s-success');
+  // Setup tracking page
+  setupTrackPage(items, total, oCount, curTable);
+  showS('s-track');
   
   // Start polling for status updates
   startTracking(dbOrderId, oCount);
 }
 
-function resetTracking(){
-  // Step received - always active
-  document.getElementById('step-received').style.opacity='1';
-  document.getElementById('step-received-dot').style.background='var(--green)';
-  document.getElementById('step-received-dot').textContent='✓';
+function setupTrackPage(items, total, orderNum, tableNum){
+  const now = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   
-  // Step preparing - inactive
-  document.getElementById('step-preparing').style.opacity='0.4';
-  document.getElementById('step-preparing-dot').style.background='var(--border)';
-  document.getElementById('step-preparing-time').textContent='';
+  // Header info
+  document.getElementById('track-order-badge').textContent = 'Order #'+orderNum;
+  document.getElementById('track-table-info').textContent = 'Table '+tableNum+' • '+now;
+  document.getElementById('track-order-badge').textContent = 'Order #'+orderNum;
   
-  // Step ready - inactive
-  document.getElementById('step-ready').style.opacity='0.4';
-  document.getElementById('step-ready-dot').style.background='var(--border)';
-  document.getElementById('step-ready-time').textContent='';
-  document.getElementById('step-ready-title').textContent='On the way';
-  document.getElementById('step-ready-sub').textContent='Waiter leke aa raha hai';
+  // Items list
+  document.getElementById('tp-items').innerHTML = items.map(i=>`
+    <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0">
+      <span>${i.name} <span style="color:var(--muted)">x${i.qty}</span></span>
+      <span style="font-weight:600">Rs ${i.price*i.qty}</span>
+    </div>`).join('');
+  document.getElementById('tp-total').textContent = 'Rs '+total;
   
-  // Timer
-  document.getElementById('timer-card').style.display='block';
-  document.getElementById('timer-display').textContent='~15 min';
-  document.getElementById('timer-sub').textContent='Thoda wait karein, khana aa raha hai! 😊';
+  // Time on step 1
+  document.getElementById('tp-time1').textContent = now;
   
-  // Hide delivered banner
-  document.getElementById('delivered-banner').style.display='none';
+  // Reset steps
+  document.getElementById('tp-step2').style.opacity='0.4';
+  document.getElementById('tp-dot2').style.background='var(--bg2)';
+  document.getElementById('tp-dot2').style.border='2px solid var(--border)';
+  document.getElementById('tp-time2').textContent='';
   
-  // Track icon
-  document.getElementById('track-icon').textContent='🍽️';
-  document.getElementById('track-title').textContent='Order Placed!';
-  document.getElementById('track-sub').textContent='Aapka order kitchen mein bhej diya gaya';
+  document.getElementById('tp-step3').style.opacity='0.4';
+  document.getElementById('tp-dot3').style.background='var(--bg2)';
+  document.getElementById('tp-dot3').style.border='2px solid var(--border)';
+  document.getElementById('tp-time3').textContent='';
+  document.getElementById('tp-step3-title').textContent='On The Way';
+  document.getElementById('tp-step3-sub').textContent='Waiter table pe leke aa raha hai';
+  
+  document.getElementById('tp-timer-card').style.display='block';
+  document.getElementById('tp-timer').textContent='~15 min';
+  document.getElementById('tp-timer-sub').textContent='Thoda wait karein 😊';
+  document.getElementById('tp-delivered').style.display='none';
+  document.getElementById('tp-main-status').textContent='Order Placed ✓';
 }
+
+function resetTracking(){ /* legacy - not used */ }
 
 function startTracking(dbId, localId){
   if(trackingInterval) clearInterval(trackingInterval);

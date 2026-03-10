@@ -1760,13 +1760,22 @@ function saveStaff(){const name=document.getElementById('st-name').value.trim(),
 function delStaff(id){const s=staff.find(x=>x.id===id);if(confirm(`Remove ${s.name}?`)){staff=staff.filter(x=>x.id!==id);notify('Removed',s.name);renderStaff();}}
 function renderOrders(filter){filter=filter||'all';updateBadges();['all','pending','prep','ready'].forEach(f=>{const el=document.getElementById(`of-${f}`);if(el){el.style.background=f===filter?'var(--ink)':'var(--bg2)';el.style.color=f===filter?'white':'var(--ink3)';el.style.border=f===filter?'1.5px solid var(--ink)':'1px solid var(--border)';}});const items=filter==='all'?orders:orders.filter(o=>o.status===(filter==='prep'?'preparing':filter));const c=document.getElementById('orders-container');if(!items.length){c.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:var(--r);grid-column:1/-1"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">No Orders</div><div>No orders ${filter==='all'?'yet':'in this status'}</div></div>`;return;}c.innerHTML=items.map(o=>`<div class="order-card ${o.status}"><div class="oc-top"><div><div class="oc-tbl">Table ${o.table}</div><div class="oc-time">#${o.id} — ${o.time}</div></div><span class="tag ${o.status==='pending'?'tag-gold':o.status==='preparing'?'tag-amber':'tag-green'}">${o.status}</span></div><div class="oc-items">${o.items.map(i=>`<div class="oc-row"><span>${i.name} x${i.qty}</span><span style="font-weight:600">Rs ${i.price*i.qty}</span></div>`).join('')}</div><div class="oc-total"><span>Total</span><span>Rs ${o.total}</span></div><div class="oc-acts">${o.status==='pending'?`<button class="btn btn-outline btn-sm" onclick="updOrder(${o.id},'preparing')">Start Cooking</button>`:''} ${o.status==='preparing'?`<button class="btn btn-primary btn-sm" onclick="updOrder(${o.id},'ready')">Mark Ready</button>`:''}<button class="btn btn-ghost btn-sm" onclick="billOrder(${o.id})">Bill</button></div></div>`).join('');}
 function filterOrders(f){renderOrders(f);}
-function updOrder(id,status){
+async function updOrder(id,status){
   const idx=orders.findIndex(o=>o.id===id);
   if(idx>-1){
     orders[idx].status=status;
     updateBadges();
     notify('Updated','Order is now '+status);
     renderOrders();
+    // Update in Supabase so customer tracking works
+    const order = orders[idx];
+    const dbId = order.db_id || order.id;
+    if(R?.id !== 'demo'){
+      try{
+        await sb.from('orders').update({status:status}).eq('id', dbId);
+        console.log('Order status updated in DB:', dbId, status);
+      }catch(e){ console.log('DB update error:', e); }
+    }
   }
 }
 function addTestOrder(){

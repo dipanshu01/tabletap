@@ -1093,6 +1093,7 @@ textarea.inp { resize: vertical; min-height: 100px; }
   <div style="height:110px"></div>
   <div class="cust-action-bar">
     <button class="cust-btn" onclick="openM('m-waiter')">Call Waiter</button>
+    <button class="cust-btn" id="track-btn" onclick="showScreen('s-track')" style="display:none;background:var(--ink);color:white;border-radius:0;animation:pulse 1.5s ease-in-out infinite">📍 Track Order</button>
     <button class="cust-btn" onclick="showScreen('s-feedback')">Give Feedback</button>
   </div>
   <div class="cart-float" id="cart-float" onclick="showScreen('s-cart')">
@@ -1909,6 +1910,9 @@ async function placeOrder(){
   // Reset tracking UI
   // Setup tracking page
   setupTrackPage(items, total, oCount, curTable);
+  // Show track button in menu
+  const trackBtn = document.getElementById('track-btn');
+  if(trackBtn) trackBtn.style.display='flex';
   showS('s-track');
   
   // Start polling for status updates

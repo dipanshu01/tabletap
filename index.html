@@ -1103,6 +1103,7 @@ textarea.inp { resize: vertical; min-height: 100px; }
     <div class="sum-row" style="border-bottom:none" id="cart-gst-row"><span id="cart-gst-label">GST (5%)</span><span id="s-gst">Rs 0</span></div>
     <div class="sum-total" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><span>Total</span><span id="s-tot">Rs 0</span></div>
   </div>
+  <div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:6px">* GST billing pe add hogi</div>
   <button class="place-btn" onclick="placeOrder()">Place Order</button>
 </div>
 
@@ -1614,7 +1615,20 @@ function renderCartScreen(){const ids=Object.keys(cart).filter(id=>cart[id]>0);c
   document.getElementById('s-gst').textContent='Rs '+gst;
   document.getElementById('s-tot').textContent='Rs '+(sub+gst);}
 function chgQ(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];updateCart();}
-async function placeOrder(){if(!Object.keys(cart).length){notify('Cart Empty','Add items first','error');return;}oCount++;document.getElementById('order-num').textContent='Order #'+oCount;const items=Object.keys(cart).map(id=>({id:parseInt(id),name:getItem(parseInt(id)).name,qty:cart[id],price:getItem(parseInt(id)).price}));const total=items.reduce((s,i)=>s+i.price*i.qty,0);orders.push({id:oCount,table:curTable,items,total,status:'pending',time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})});try{await sb.from('orders').insert({restaurant_id:R?.id||'demo',table_number:curTable,items:JSON.stringify(items),total_amount:total,status:'pending'});}catch(e){}showS('s-success');}
+async function placeOrder(){
+  if(!Object.keys(cart).length){notify('Cart Empty','Add items first','error');return;}
+  oCount++;
+  document.getElementById('order-num').textContent='Order #'+oCount;
+  const items=Object.keys(cart).map(id=>({id:parseInt(id),name:getItem(parseInt(id)).name,qty:cart[id],price:getItem(parseInt(id)).price}));
+  const subtotal=items.reduce((s,i)=>s+i.price*i.qty,0);
+  // GST sirf bill mein dikhega — order total subtotal hi rahega
+  // Taki kitchen ko sahi price pata rahe
+  const total=subtotal;
+  orders.push({id:oCount,table:curTable,items,total,status:'pending',time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})});
+  try{await sb.from('orders').insert({restaurant_id:R?.id||'demo',table_number:curTable,items:JSON.stringify(items),total_amount:total,status:'pending'});}catch(e){}
+  cart={};
+  showS('s-success');
+}
 async function confWaiter(){
   closeM('m-waiter');
   const time=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});

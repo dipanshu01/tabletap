@@ -6,6 +6,20 @@
 <title>TableTap — Smart Restaurant Management</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- Category Management Modal -->
+<div class="modal" id="m-cats">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-hdr"><div style="font-family:var(--fd);font-size:18px">Categories Manage Karein</div><button class="modal-close" onclick="closeM('m-cats')">✕</button></div>
+    <div style="margin-bottom:16px">
+      <div style="display:flex;gap:8px">
+        <input class="inp" id="new-cat-inp" placeholder="Nayi category ka naam..." style="flex:1">
+        <button class="btn btn-primary btn-sm" onclick="saveCat()">Add</button>
+      </div>
+    </div>
+    <div id="cats-list" style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto"></div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
@@ -570,10 +584,11 @@ textarea.inp { resize: vertical; min-height: 100px; }
       <div class="inp-group"><label class="inp-label">Category</label>
         <select class="inp" id="fi-cat">
           <option value="">Select category</option>
-          <option>Starters</option><option>Soups</option><option>Main Course</option>
-          <option>Biryani & Rice</option><option>Breads</option><option>Desserts</option>
-          <option>Drinks</option><option>Specials</option>
         </select>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <input class="inp" id="fi-newcat" placeholder="Nayi category likhein..." style="font-size:12px;padding:6px 10px;flex:1">
+          <button class="btn btn-ghost btn-sm" type="button" onclick="addCustomCat()" style="white-space:nowrap">+ Add</button>
+        </div>
       </div>
       <div class="inp-group"><label class="inp-label">Type</label>
         <select class="inp" id="fi-veg"><option value="true">Veg</option><option value="false">Non-Veg</option></select>
@@ -1139,6 +1154,88 @@ const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI
 const sb=supabase.createClient(SURL,SKEY);
 let R=null,menu=[],staff=[],orders=[],calls=[],feedbacks=[],cart={},editId=null,editSId=null,imgData=null,ratings={f:0,s:0},activeCat='',activeMCat='All',curTable=1,totalTables=10,oCount=100;
 
+// Default categories
+let customCats = ['Starters','Soups','Main Course','Biryani & Rice','Breads','Desserts','Drinks','Specials'];
+
+function loadCats(){
+  const saved = localStorage.getItem('tt_cats_'+(R?.id||'demo'));
+  if(saved){ try{ customCats = JSON.parse(saved); }catch(e){} }
+  // Also add any categories from existing menu items
+  menu.forEach(item=>{ if(item.category && !customCats.includes(item.category)) customCats.push(item.category); });
+  updateCatDropdown();
+}
+
+function saveCatsToStorage(){
+  localStorage.setItem('tt_cats_'+(R?.id||'demo'), JSON.stringify(customCats));
+}
+
+function updateCatDropdown(){
+  const sel = document.getElementById('fi-cat');
+  if(!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Select category</option>' + 
+    customCats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  if(cur) sel.value = cur;
+}
+
+function addCustomCat(){
+  const inp = document.getElementById('fi-newcat');
+  const val = inp.value.trim();
+  if(!val){ notify('Error','Category ka naam likhein','error'); return; }
+  if(customCats.includes(val)){ notify('Already exists','Yeh category pehle se hai','error'); return; }
+  customCats.push(val);
+  saveCatsToStorage();
+  updateCatDropdown();
+  document.getElementById('fi-cat').value = val;
+  inp.value = '';
+  notify('Added', val+' category add ho gayi!');
+}
+
+function saveCat(){
+  const inp = document.getElementById('new-cat-inp');
+  const val = inp.value.trim();
+  if(!val){ notify('Error','Category ka naam likhein','error'); return; }
+  if(customCats.includes(val)){ notify('Already exists','Yeh category pehle se hai','error'); return; }
+  customCats.push(val);
+  saveCatsToStorage();
+  updateCatDropdown();
+  renderCatsModal();
+  inp.value = '';
+  notify('Added', val+' add ho gayi!');
+}
+
+function deleteCat(cat){
+  const inUse = menu.some(i=>i.category===cat);
+  if(inUse){ notify('Error','Pehle is category ke items delete karein','error'); return; }
+  customCats = customCats.filter(c=>c!==cat);
+  saveCatsToStorage();
+  updateCatDropdown();
+  renderCatsModal();
+  notify('Deleted', cat+' delete ho gayi');
+}
+
+function renderCatsModal(){
+  const el = document.getElementById('cats-list');
+  if(!el) return;
+  if(!customCats.length){ el.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Koi category nahi</div>'; return; }
+  el.innerHTML = customCats.map(c=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg2);padding:10px 14px;border-radius:var(--r);border:1px solid var(--border)">
+      <span style="font-weight:500">${c}</span>
+      <button class="btn btn-danger btn-sm" onclick="deleteCat('${c}')">Delete</button>
+    </div>`).join('');
+}
+
+function resetMenuForm(){
+  editId=null; imgData=null;
+  document.getElementById('m-item-title').textContent='Add New Dish';
+  ['fi-name','fi-desc','fi-price','fi-emoji','fi-newcat'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('fi-cat').value='';
+  document.getElementById('fi-veg').value='true';
+  document.getElementById('fi-id').value='';
+  document.getElementById('img-prev').innerHTML='📷';
+  updateCatDropdown();
+}
+
 window.addEventListener('DOMContentLoaded',async()=>{
   const p=new URLSearchParams(window.location.search);
   const tbl=p.get('table'),rid=p.get('resto');
@@ -1152,7 +1249,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
 
 let ntT;
 function notify(t,m,type='success'){document.getElementById('nt-t').textContent=t;document.getElementById('nt-m').textContent=m;const el=document.getElementById('notif');el.className=`notif ${type} show`;clearTimeout(ntT);ntT=setTimeout(()=>el.classList.remove('show'),3500);}
-function openM(id){document.getElementById(id).classList.add('open');}
+function openM(id){document.getElementById(id).classList.add('open');if(id==='m-cats')renderCatsModal();if(id==='m-item')updateCatDropdown();}
 function closeM(id){document.getElementById(id).classList.remove('open');}
 function showS(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='s-dash')initDash();window.scrollTo(0,0);}
 function showScreen(id){showS(id);}
@@ -1229,6 +1326,7 @@ function initDash(){
   document.getElementById('st-orders').textContent=orders.length;
   document.getElementById('set-rname').value=R.name;
   updateBadges();
+  loadCats();
   // Start realtime only for real restaurants (not demo)
   if(R.id!=='demo') startRealtime();
 }
@@ -1439,6 +1537,23 @@ function prevImg(input){
   };
   r.readAsDataURL(file);
 }
+async function uploadImgToStorage(base64Data, itemId){
+  try{
+    // Convert base64 to blob
+    const res = await fetch(base64Data);
+    const blob = await res.blob();
+    const filename = 'menu_'+R.id+'_'+itemId+'_'+Date.now()+'.jpg';
+    const {data, error} = await sb.storage.from('images').upload(filename, blob, {
+      contentType: 'image/jpeg',
+      upsert: true
+    });
+    if(error){ console.log('Storage upload error:', error); return null; }
+    // Get public URL
+    const {data: urlData} = sb.storage.from('images').getPublicUrl(filename);
+    return urlData.publicUrl;
+  }catch(e){ console.log('Upload failed:', e); return null; }
+}
+
 async function saveItem(){
   const name=document.getElementById('fi-name').value.trim(),
     desc=document.getElementById('fi-desc').value.trim(),
@@ -1447,32 +1562,47 @@ async function saveItem(){
     veg=document.getElementById('fi-veg').value==='true',
     emoji=document.getElementById('fi-emoji').value.trim()||'';
   if(!name||!price||!cat){notify('Error','Name, price and category required','error');return;}
-  
-  // Save img separately - only in local memory (Supabase may not support large base64)
+
+  const btn = document.querySelector('#m-item .btn-primary');
+  if(btn){btn.innerHTML='<span class="loader"></span> Saving...';btn.disabled=true;}
+
+  let finalImgUrl = imgData; // default: local base64
+
+  // Upload to Supabase Storage if new image selected and real account
+  if(imgData && imgData.startsWith('data:') && R?.id !== 'demo'){
+    notify('Uploading','Photo upload ho rahi hai...');
+    const itemId = editId || Date.now();
+    const uploaded = await uploadImgToStorage(imgData, itemId);
+    if(uploaded){
+      finalImgUrl = uploaded;
+      notify('Photo Saved','Photo permanently save ho gayi!');
+    }
+  }
+
   const d={name,description:desc,price,category:cat,is_veg:veg,emoji,restaurant_id:R?.id||'demo'};
-  const dWithImg={...d,img:imgData};
-  
+  const dWithImg={...d,img:finalImgUrl};
+
   if(editId){
     const idx=menu.findIndex(i=>i.id===editId);
     menu[idx]={...menu[idx],...dWithImg};
     if(R?.id!=='demo'){
       try{
-        // Try saving without img first (safer), then with img
-        await sb.from('menu_items').update(d).eq('id',editId);
+        await sb.from('menu_items').update({...d,img:finalImgUrl}).eq('id',editId);
       }catch(e){console.log('DB update error',e);}
     }
-    notify('Updated',name+' updated successfully');
+    notify('Updated',name+' update ho gaya!');
   } else {
     const nid=menu.length>0?Math.max(...menu.map(i=>i.id))+1:1;
     const ni={id:nid,...dWithImg};
     menu.push(ni);
     if(R?.id!=='demo'){
       try{
-        await sb.from('menu_items').insert({...d,id:nid});
+        await sb.from('menu_items').insert({...d,img:finalImgUrl,id:nid});
       }catch(e){console.log('DB insert error',e);}
     }
-    notify('Added',name+' added to menu');
+    notify('Added',name+' menu mein add ho gaya!');
   }
+  if(btn){btn.innerHTML='Save Dish';btn.disabled=false;}
   closeM('m-item');
   renderMenu();
 }

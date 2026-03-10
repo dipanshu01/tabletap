@@ -1182,6 +1182,7 @@ function doLogout(){
   // Stop realtime subscriptions
   if(window._realtimeCh){try{sb.removeChannel(window._realtimeCh);}catch(e){}}
   if(window._ordersCh){try{sb.removeChannel(window._ordersCh);}catch(e){}}
+  if(window._pollInterval){clearInterval(window._pollInterval);}
   localStorage.removeItem('tt_s');R=null;menu=[];staff=[];calls=[];orders=[];
   showS('s-landing');notify('Logged Out','See you soon!');
 }
@@ -1207,44 +1208,48 @@ function initDash(){
 }
 
 function startRealtime(){
-  // Remove old channels if any
   if(window._realtimeCh){try{sb.removeChannel(window._realtimeCh);}catch(e){}}
   if(window._ordersCh){try{sb.removeChannel(window._ordersCh);}catch(e){}}
+  if(window._pollInterval){clearInterval(window._pollInterval);}
 
-  // WAITER CALLS — realtime subscription
-  window._realtimeCh = sb.channel('waiter-calls-'+R.id)
+  console.log('Starting realtime for restaurant:', R.id);
+
+  // WAITER CALLS — without filter (free plan compatible)
+  window._realtimeCh = sb.channel('waiter-calls-ch')
     .on('postgres_changes',{
       event:'INSERT',
       schema:'public',
-      table:'waiter_calls',
-      filter:'restaurant_id=eq.'+R.id
+      table:'waiter_calls'
     }, payload => {
       const d = payload.new;
+      console.log('Waiter call received:', d);
+      // Only show if it's for THIS restaurant
+      if(d.restaurant_id !== R.id) return;
       const time = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-      // Avoid duplicates
       const alreadyExists = calls.some(c=>c.db_id===d.id);
       if(!alreadyExists){
         calls.unshift({db_id:d.id, table:d.table_number, time, type:'Waiter Assistance Requested'});
         updateBadges();
-        // Show popup notification
-        notify('Waiter Call!', 'Table '+d.table_number+' ne waiter bulaya hai!', 'error');
-        // Play beep sound
+        notify('Waiter Call!', 'Table '+d.table_number+' ne waiter bulaya!', 'error');
         playBeep();
-        // If requests tab is open, refresh it
         if(document.getElementById('tab-requests').classList.contains('active')) renderRequests();
       }
     })
-    .subscribe();
+    .subscribe((status)=>{
+      console.log('Waiter calls subscription status:', status);
+    });
 
-  // ORDERS — realtime subscription
-  window._ordersCh = sb.channel('orders-'+R.id)
+  // ORDERS — without filter (free plan compatible)
+  window._ordersCh = sb.channel('orders-ch')
     .on('postgres_changes',{
       event:'INSERT',
       schema:'public',
-      table:'orders',
-      filter:'restaurant_id=eq.'+R.id
+      table:'orders'
     }, payload => {
       const d = payload.new;
+      console.log('Order received:', d);
+      // Only show if it's for THIS restaurant
+      if(d.restaurant_id !== R.id) return;
       const alreadyExists = orders.some(o=>o.db_id===d.id);
       if(!alreadyExists){
         let items=[];
@@ -1257,7 +1262,62 @@ function startRealtime(){
         if(document.getElementById('tab-orders').classList.contains('active')) renderOrders();
       }
     })
-    .subscribe();
+    .subscribe((status)=>{
+      console.log('Orders subscription status:', status);
+    });
+
+  // BACKUP POLLING — har 8 second mein check karo (agar realtime fail ho)
+  let lastWaiterCheck = new Date().toISOString();
+  let lastOrderCheck = new Date().toISOString();
+  
+  window._pollInterval = setInterval(async()=>{
+    try{
+      // Check new waiter calls
+      const{data:wCalls}=await sb.from('waiter_calls')
+        .select('*')
+        .eq('restaurant_id', R.id)
+        .eq('status','pending')
+        .gt('created_at', lastWaiterCheck);
+      
+      if(wCalls && wCalls.length>0){
+        lastWaiterCheck = new Date().toISOString();
+        wCalls.forEach(d=>{
+          const alreadyExists = calls.some(c=>c.db_id===d.id);
+          if(!alreadyExists){
+            const time=new Date(d.created_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+            calls.unshift({db_id:d.id, table:d.table_number, time, type:'Waiter Assistance Requested'});
+            updateBadges();
+            notify('Waiter Call!','Table '+d.table_number+' ne waiter bulaya!','error');
+            playBeep();
+            if(document.getElementById('tab-requests').classList.contains('active')) renderRequests();
+          }
+        });
+      }
+
+      // Check new orders
+      const{data:newOrders}=await sb.from('orders')
+        .select('*')
+        .eq('restaurant_id', R.id)
+        .gt('created_at', lastOrderCheck);
+      
+      if(newOrders && newOrders.length>0){
+        lastOrderCheck = new Date().toISOString();
+        newOrders.forEach(d=>{
+          const alreadyExists = orders.some(o=>o.db_id===d.id);
+          if(!alreadyExists){
+            let items=[];
+            try{items=JSON.parse(d.items||'[]');}catch(e){}
+            const time=new Date(d.created_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+            orders.unshift({db_id:d.id,id:d.id,table:d.table_number,items,total:d.total_amount,status:d.status||'pending',time});
+            document.getElementById('st-orders').textContent=orders.length;
+            notify('New Order!','Table '+d.table_number+' ka order aa gaya!','success');
+            playBeep();
+            if(document.getElementById('tab-orders').classList.contains('active')) renderOrders();
+          }
+        });
+      }
+    }catch(e){console.log('Poll error:',e);}
+  }, 8000);
 }
 
 function updateBadges(){

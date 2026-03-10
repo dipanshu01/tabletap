@@ -138,6 +138,10 @@ textarea.inp { resize: vertical; min-height: 100px; }
 .loader { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--ink); border-radius: 50%; animation: spin .7s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 
+/* TRACKING */
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.7;transform:scale(1.05)} }
+.track-pulse { animation: pulse 1.5s ease-in-out infinite; }
+
 /* TAGS / BADGES */
 .tag { display: inline-flex; align-items: center; padding: 3px 10px; font-size: 11px; font-weight: 500; border-radius: 2px; }
 .tag-green { background: var(--green-bg); color: var(--green); }
@@ -1107,20 +1111,78 @@ textarea.inp { resize: vertical; min-height: 100px; }
 </div>
 
 <!-- SUCCESS -->
-<div class="screen" id="s-success">
-  <div class="success-check">✓</div>
-  <div class="success-title">Order Placed!</div>
-  <div class="success-sub">Your food is being prepared</div>
-  <div class="order-badge" id="order-num">Order #101</div>
-  <div style="display:flex;gap:20px;align-items:center;margin-bottom:36px;flex-wrap:wrap;justify-content:center">
-    <span class="tag tag-green" style="padding:8px 16px">Received</span>
-    <span style="color:var(--border2)">→</span>
-    <span class="tag tag-muted" style="padding:8px 16px">Preparing</span>
-    <span style="color:var(--border2)">→</span>
-    <span class="tag tag-muted" style="padding:8px 16px">Served</span>
+<div class="screen" id="s-success" style="padding:0;background:var(--bg)">
+  <div style="max-width:480px;margin:0 auto;padding:32px 20px">
+    <!-- Header -->
+    <div id="track-header" style="text-align:center;margin-bottom:32px">
+      <div id="track-icon" style="font-size:56px;margin-bottom:12px">🍽️</div>
+      <div id="track-title" style="font-family:var(--fd);font-size:26px;margin-bottom:6px">Order Placed!</div>
+      <div id="track-sub" style="font-size:14px;color:var(--muted)">Aapka order kitchen mein bhej diya gaya</div>
+      <div id="order-num" style="display:inline-block;margin-top:12px;background:var(--ink);color:white;padding:6px 18px;border-radius:20px;font-size:13px;font-weight:600">Order #101</div>
+    </div>
+
+    <!-- Live Status Card -->
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:20px;box-shadow:var(--shadow)">
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:var(--muted);margin-bottom:16px">LIVE ORDER STATUS</div>
+      
+      <!-- Step 1: Received -->
+      <div class="track-step" id="step-received" style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border)">
+        <div id="step-received-dot" style="width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;color:white;font-size:16px;flex-shrink:0">✓</div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:14px">Order Received</div>
+          <div style="font-size:12px;color:var(--muted)">Kitchen ko order mil gaya</div>
+        </div>
+        <div id="step-received-time" style="font-size:11px;color:var(--muted)"></div>
+      </div>
+
+      <!-- Step 2: Preparing -->
+      <div class="track-step" id="step-preparing" style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);opacity:0.4">
+        <div id="step-preparing-dot" style="width:36px;height:36px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:16px;flex-shrink:0">👨‍🍳</div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:14px">Preparing</div>
+          <div style="font-size:12px;color:var(--muted)">Chef khana bana raha hai</div>
+        </div>
+        <div id="step-preparing-time" style="font-size:11px;color:var(--muted)"></div>
+      </div>
+
+      <!-- Step 3: Ready / Delivered -->
+      <div class="track-step" id="step-ready" style="display:flex;align-items:center;gap:14px;padding:12px 0;opacity:0.4">
+        <div id="step-ready-dot" style="width:36px;height:36px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:16px;flex-shrink:0">🎉</div>
+        <div style="flex:1">
+          <div id="step-ready-title" style="font-weight:600;font-size:14px">On the way</div>
+          <div id="step-ready-sub" style="font-size:12px;color:var(--muted)">Waiter leke aa raha hai</div>
+        </div>
+        <div id="step-ready-time" style="font-size:11px;color:var(--muted)"></div>
+      </div>
+    </div>
+
+    <!-- Timer Card -->
+    <div id="timer-card" style="background:var(--gold-light);border:1px solid var(--gold);border-radius:var(--r);padding:16px 20px;margin-bottom:20px;text-align:center">
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:var(--gold);margin-bottom:4px">ESTIMATED TIME</div>
+      <div id="timer-display" style="font-family:var(--fd);font-size:32px;color:var(--ink)">~15 min</div>
+      <div id="timer-sub" style="font-size:12px;color:var(--muted);margin-top:2px">Thoda wait karein, khana aa raha hai! 😊</div>
+    </div>
+
+    <!-- Delivered Banner (hidden initially) -->
+    <div id="delivered-banner" style="display:none;background:var(--green);border-radius:var(--r);padding:20px;text-align:center;margin-bottom:20px">
+      <div style="font-size:36px;margin-bottom:8px">🎉</div>
+      <div style="font-family:var(--fd);font-size:22px;color:white;margin-bottom:4px">Delivered!</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.85)">Aapka khana aa gaya — Enjoy karein!</div>
+    </div>
+
+    <!-- Order Items -->
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:var(--muted);margin-bottom:12px">YOUR ORDER</div>
+      <div id="track-items" style="display:flex;flex-direction:column;gap:8px"></div>
+      <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px;display:flex;justify-content:space-between;font-weight:600">
+        <span>Total</span><span id="track-total">Rs 0</span>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <button class="btn btn-outline" style="width:100%;padding:13px;margin-bottom:10px" onclick="showScreen('s-menu')">+ Add More Items</button>
+    <button class="btn btn-ghost" style="width:100%;padding:11px" onclick="showScreen('s-feedback')">Leave Feedback</button>
   </div>
-  <button class="btn btn-primary" style="margin-bottom:12px;padding:13px 28px" onclick="showScreen('s-menu');cart={};updateCart()">Back to Menu</button><br>
-  <button class="btn btn-outline" style="margin-top:10px;padding:11px 24px" onclick="showScreen('s-feedback')">Leave Feedback</button>
 </div>
 
 <!-- FEEDBACK -->
@@ -1721,19 +1783,133 @@ function updateCart(){const ids=Object.keys(cart);const cnt=ids.reduce((s,id)=>s
 function renderCartScreen(){const ids=Object.keys(cart).filter(id=>cart[id]>0);const el=document.getElementById('cart-list');if(!ids.length){el.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted)"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">Empty Cart</div><div>Add items from the menu</div></div>`;['s-sub','s-gst','s-tot'].forEach(id=>document.getElementById(id).textContent='Rs 0');return;}el.innerHTML=ids.map(id=>{const item=getItem(parseInt(id));return`<div class="cart-item"><div class="ci-img">${item.img?`<img src="${item.img}">`:(item.emoji||'')}</div><div class="ci-info"><div class="ci-name">${item.name}</div><div class="ci-unit">Rs ${item.price} each</div></div><div class="qty-ctl"><button class="qty-btn" onclick="chgQ(${id},-1)">−</button><span class="qty-num">${cart[id]}</span><button class="qty-btn" onclick="chgQ(${id},1)">+</button></div></div>`;}).join('');const sub=ids.reduce((s,id)=>s+getItem(parseInt(id)).price*cart[id],0);
   document.getElementById('s-tot').textContent='Rs '+sub;}
 function chgQ(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];updateCart();}
+let trackingOrderId = null;
+let trackingInterval = null;
+
 async function placeOrder(){
   if(!Object.keys(cart).length){notify('Cart Empty','Add items first','error');return;}
   oCount++;
-  document.getElementById('order-num').textContent='Order #'+oCount;
   const items=Object.keys(cart).map(id=>({id:parseInt(id),name:getItem(parseInt(id)).name,qty:cart[id],price:getItem(parseInt(id)).price}));
   const subtotal=items.reduce((s,i)=>s+i.price*i.qty,0);
-  // GST sirf bill mein dikhega — order total subtotal hi rahega
-  // Taki kitchen ko sahi price pata rahe
   const total=subtotal;
-  orders.push({id:oCount,table:curTable,items,total,status:'pending',time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})});
-  try{await sb.from('orders').insert({restaurant_id:R?.id||'demo',table_number:curTable,items:JSON.stringify(items),total_amount:total,status:'pending'});}catch(e){}
+  const time=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  const orderObj={id:oCount,table:curTable,items,total,status:'pending',time};
+  orders.push(orderObj);
+  
+  let dbOrderId = null;
+  try{
+    const{data}=await sb.from('orders').insert({restaurant_id:R?.id||'demo',table_number:curTable,items:JSON.stringify(items),total_amount:total,status:'pending'}).select().single();
+    if(data) dbOrderId = data.id;
+  }catch(e){}
+  
+  trackingOrderId = dbOrderId || oCount;
   cart={};
+  
+  // Setup tracking screen
+  document.getElementById('order-num').textContent='Order #'+oCount;
+  document.getElementById('track-items').innerHTML = items.map(i=>`
+    <div style="display:flex;justify-content:space-between;font-size:13px">
+      <span>${i.name} x${i.qty}</span>
+      <span style="font-weight:600">Rs ${i.price*i.qty}</span>
+    </div>`).join('');
+  document.getElementById('track-total').textContent='Rs '+total;
+  document.getElementById('step-received-time').textContent=time;
+  
+  // Reset tracking UI
+  resetTracking();
   showS('s-success');
+  
+  // Start polling for status updates
+  startTracking(dbOrderId, oCount);
+}
+
+function resetTracking(){
+  // Step received - always active
+  document.getElementById('step-received').style.opacity='1';
+  document.getElementById('step-received-dot').style.background='var(--green)';
+  document.getElementById('step-received-dot').textContent='✓';
+  
+  // Step preparing - inactive
+  document.getElementById('step-preparing').style.opacity='0.4';
+  document.getElementById('step-preparing-dot').style.background='var(--border)';
+  document.getElementById('step-preparing-time').textContent='';
+  
+  // Step ready - inactive
+  document.getElementById('step-ready').style.opacity='0.4';
+  document.getElementById('step-ready-dot').style.background='var(--border)';
+  document.getElementById('step-ready-time').textContent='';
+  document.getElementById('step-ready-title').textContent='On the way';
+  document.getElementById('step-ready-sub').textContent='Waiter leke aa raha hai';
+  
+  // Timer
+  document.getElementById('timer-card').style.display='block';
+  document.getElementById('timer-display').textContent='~15 min';
+  document.getElementById('timer-sub').textContent='Thoda wait karein, khana aa raha hai! 😊';
+  
+  // Hide delivered banner
+  document.getElementById('delivered-banner').style.display='none';
+  
+  // Track icon
+  document.getElementById('track-icon').textContent='🍽️';
+  document.getElementById('track-title').textContent='Order Placed!';
+  document.getElementById('track-sub').textContent='Aapka order kitchen mein bhej diya gaya';
+}
+
+function startTracking(dbId, localId){
+  if(trackingInterval) clearInterval(trackingInterval);
+  if(!dbId) return; // Demo mode - no tracking
+  
+  trackingInterval = setInterval(async()=>{
+    try{
+      const{data}=await sb.from('orders').select('status,updated_at').eq('id',dbId).single();
+      if(!data) return;
+      updateTrackingUI(data.status);
+      if(data.status==='ready') clearInterval(trackingInterval);
+    }catch(e){}
+  }, 5000); // Check every 5 seconds
+}
+
+function updateTrackingUI(status){
+  const now = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  
+  if(status==='preparing'){
+    // Activate preparing step
+    document.getElementById('step-preparing').style.opacity='1';
+    document.getElementById('step-preparing-dot').style.background='var(--amber)';
+    document.getElementById('step-preparing-dot').textContent='👨‍🍳';
+    document.getElementById('step-preparing-dot').classList.add('track-pulse');
+    document.getElementById('step-preparing-time').textContent=now;
+    document.getElementById('timer-display').textContent='~10 min';
+    document.getElementById('track-icon').textContent='👨‍🍳';
+    document.getElementById('track-title').textContent='Khana Ban Raha Hai!';
+    document.getElementById('track-sub').textContent='Chef aapka order prepare kar raha hai';
+  }
+  
+  if(status==='ready'){
+    // Activate all steps
+    document.getElementById('step-preparing').style.opacity='1';
+    document.getElementById('step-preparing-dot').style.background='var(--green)';
+    document.getElementById('step-preparing-dot').textContent='✓';
+    document.getElementById('step-preparing-dot').classList.remove('track-pulse');
+    
+    document.getElementById('step-ready').style.opacity='1';
+    document.getElementById('step-ready-dot').style.background='var(--green)';
+    document.getElementById('step-ready-dot').textContent='🎉';
+    document.getElementById('step-ready-dot').classList.add('track-pulse');
+    document.getElementById('step-ready-time').textContent=now;
+    document.getElementById('step-ready-title').textContent='Delivered! 🎉';
+    document.getElementById('step-ready-sub').textContent='Aapka khana table pe aa gaya!';
+    
+    // Show delivered banner, hide timer
+    document.getElementById('timer-card').style.display='none';
+    document.getElementById('delivered-banner').style.display='block';
+    document.getElementById('track-icon').textContent='🎉';
+    document.getElementById('track-title').textContent='Delivered!';
+    document.getElementById('track-sub').textContent='Enjoy your meal! Khana aagaya!';
+    
+    // Play beep
+    playBeep();
+  }
 }
 async function confWaiter(){
   closeM('m-waiter');

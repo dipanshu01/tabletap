@@ -7,19 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <!-- Category Management Modal -->
-<div class="modal" id="m-cats">
-  <div class="modal-box" style="max-width:420px">
-    <div class="modal-hdr"><div style="font-family:var(--fd);font-size:18px">Categories Manage Karein</div><button class="modal-close" onclick="closeM('m-cats')">✕</button></div>
-    <div style="margin-bottom:16px">
-      <div style="display:flex;gap:8px">
-        <input class="inp" id="new-cat-inp" placeholder="Nayi category ka naam..." style="flex:1">
-        <button class="btn btn-primary btn-sm" onclick="saveCat()">Add</button>
-      </div>
-    </div>
-    <div id="cats-list" style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto"></div>
-  </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
@@ -1779,5 +1766,21 @@ async function confWaiter(){
 function rateStar(type,val){ratings[type]=val;document.querySelectorAll(`#s${type} .star`).forEach((s,i)=>s.classList.toggle('on',i<val));}
 async function submitFeedback(){if(!ratings.f||!ratings.s){notify('Incomplete','Rate both food and service','error');return;}const text=document.getElementById('fb-text').value||'No comment';feedbacks.unshift({table:curTable,food:ratings.f,svc:ratings.s,text,time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})});try{await sb.from('feedbacks').insert({restaurant_id:R?.id||'demo',table_number:curTable,food_rating:ratings.f,service_rating:ratings.s,comment:text});}catch(e){}ratings={f:0,s:0};document.getElementById('fb-text').value='';document.querySelectorAll('.star').forEach(s=>s.classList.remove('on'));notify('Thank You','Feedback received');showS('s-menu');}
 </script>
+<!-- Category Management Modal -->
+<div class="mov" id="m-cats">
+  <div class="modal" style="max-width:420px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="font-family:var(--fd);font-size:20px">Categories Manage Karein</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeM('m-cats')">✕</button>
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="display:flex;gap:8px">
+        <input class="inp" id="new-cat-inp" placeholder="Nayi category ka naam..." style="flex:1">
+        <button class="btn btn-primary btn-sm" onclick="saveCat()">Add</button>
+      </div>
+    </div>
+    <div id="cats-list" style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto"></div>
+  </div>
+</div>
 </body>
 </html>

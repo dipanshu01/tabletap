@@ -646,8 +646,8 @@ textarea.inp { resize: vertical; min-height: 100px; }
     <div id="bill-items-list"></div>
     <div style="margin-top:12px">
       <div class="bill-row"><span>Subtotal</span><span id="bill-sub">Rs 0</span></div>
-      <div class="bill-row"><span>GST (5%)</span><span id="bill-gst">Rs 0</span></div>
-      <div class="bill-row" style="border-bottom:none"><span>Service Charge (2%)</span><span id="bill-sc">Rs 0</span></div>
+      <div class="bill-row" id="bill-gst-row"><span id="bill-gst-label">GST (5%)</span><span id="bill-gst">Rs 0</span></div>
+      <div class="bill-row" style="border-bottom:none" id="bill-sc-row"><span id="bill-sc-label">Service Charge (2%)</span><span id="bill-sc">Rs 0</span></div>
       <div class="bill-total-row" style="margin-top:12px;border-top:2px solid var(--border)"><span>Total</span><span id="bill-total">Rs 0</span></div>
     </div>
     <div style="text-align:center;margin-top:18px;font-size:11px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase">Thank you for dining with us</div>
@@ -1038,7 +1038,34 @@ textarea.inp { resize: vertical; min-height: 100px; }
         <div class="d-hdr"><div class="d-title">Settings</div></div>
         <div class="settings-grid">
           <div class="settings-card"><div class="sc-title">Restaurant Info</div><div class="sc-sub">Basic details update karein</div><div class="inp-group"><label class="inp-label">Restaurant Name</label><input class="inp" id="set-rname"></div><div class="inp-group"><label class="inp-label">Phone</label><input class="inp" id="set-phone" placeholder="+91 98765 43210"></div><div class="inp-group"><label class="inp-label">Address</label><input class="inp" id="set-addr" placeholder="Restaurant address"></div><button class="btn btn-primary" onclick="saveSettings()">Save Changes</button></div>
-          <div class="settings-card"><div class="sc-title">Table Settings</div><div class="sc-sub">Tables configure karein</div><div class="inp-group"><label class="inp-label">Total Tables</label><input class="inp" id="set-tables" type="number" value="10" min="1" max="100"></div><div class="inp-group"><label class="inp-label">Capacity Per Table</label><input class="inp" id="set-cap" type="number" value="4"></div><div class="inp-group"><label class="inp-label">GST Number</label><input class="inp" id="set-gst" placeholder="GST registration number"></div><button class="btn btn-primary" onclick="saveSettings()">Save Changes</button></div>
+          <div class="settings-card">
+  <div class="sc-title">Table & GST Settings</div>
+  <div class="sc-sub">Tables aur GST configure karein</div>
+  <div class="inp-group"><label class="inp-label">Total Tables</label><input class="inp" id="set-tables" type="number" value="10" min="1" max="100"></div>
+  <div class="inp-group"><label class="inp-label">Capacity Per Table</label><input class="inp" id="set-cap" type="number" value="4"></div>
+  <div class="inp-group"><label class="inp-label">GST Number (optional)</label><input class="inp" id="set-gst" placeholder="GST registration number"></div>
+  <div class="inp-group">
+    <label class="inp-label">GST Rate</label>
+    <select class="inp" id="set-gst-rate">
+      <option value="0">No GST (0%)</option>
+      <option value="3">3% GST</option>
+      <option value="5" selected>5% GST</option>
+      <option value="10">10% GST</option>
+      <option value="12">12% GST</option>
+      <option value="18">18% GST</option>
+    </select>
+  </div>
+  <div class="inp-group">
+    <label class="inp-label">Service Charge</label>
+    <select class="inp" id="set-sc-rate">
+      <option value="0">No Service Charge</option>
+      <option value="2" selected>2% Service Charge</option>
+      <option value="5">5% Service Charge</option>
+      <option value="10">10% Service Charge</option>
+    </select>
+  </div>
+  <button class="btn btn-primary" onclick="saveSettings()">Save Changes</button>
+</div>
         </div>
       </div>
 
@@ -1073,7 +1100,7 @@ textarea.inp { resize: vertical; min-height: 100px; }
   <div class="cart-items" id="cart-list"></div>
   <div class="cart-summary">
     <div class="sum-row"><span>Subtotal</span><span id="s-sub">Rs 0</span></div>
-    <div class="sum-row" style="border-bottom:none"><span>GST (5%)</span><span id="s-gst">Rs 0</span></div>
+    <div class="sum-row" style="border-bottom:none" id="cart-gst-row"><span id="cart-gst-label">GST (5%)</span><span id="s-gst">Rs 0</span></div>
     <div class="sum-total" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><span>Total</span><span id="s-tot">Rs 0</span></div>
   </div>
   <button class="place-btn" onclick="placeOrder()">Place Order</button>
@@ -1455,13 +1482,70 @@ function renderOrders(filter){filter=filter||'all';['all','pending','prep','read
 function filterOrders(f){renderOrders(f);}
 function updOrder(id,status){const idx=orders.findIndex(o=>o.id===id);if(idx>-1){orders[idx].status=status;notify('Updated','Order is now '+status);renderOrders();}}
 function addTestOrder(){const items=[{name:'Butter Chicken',qty:2,price:380},{name:'Naan',qty:4,price:60}];const total=items.reduce((s,i)=>s+i.price*i.qty,0);oCount++;orders.push({id:oCount,table:Math.floor(Math.random()*10)+1,items,total,status:'pending',time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})});document.getElementById('st-orders').textContent=orders.length;notify('New Order','Order #'+oCount+' received');renderOrders();}
-function showSampleBill(){document.getElementById('bill-rname').textContent=(R?.name||'Restaurant').toUpperCase();document.getElementById('bill-info').textContent='Table 3 — Invoice — '+new Date().toLocaleDateString('en-IN');const items=[{name:'Butter Chicken x2',total:760},{name:'Dal Makhani x1',total:260},{name:'Butter Naan x4',total:240}];const sub=1260;const gst=Math.round(sub*.05);const sc=Math.round(sub*.02);document.getElementById('bill-items-list').innerHTML=items.map(i=>`<div class="bill-row"><span>${i.name}</span><span>Rs ${i.total}</span></div>`).join('');document.getElementById('bill-sub').textContent='Rs '+sub;document.getElementById('bill-gst').textContent='Rs '+gst;document.getElementById('bill-sc').textContent='Rs '+sc;document.getElementById('bill-total').textContent='Rs '+(sub+gst+sc);openM('m-bill');}
-function billOrder(id){const o=orders.find(x=>x.id===id);if(!o)return;document.getElementById('bill-rname').textContent=(R?.name||'Restaurant').toUpperCase();document.getElementById('bill-info').textContent=`Table ${o.table} — Order #${o.id}`;const sub=o.total;const gst=Math.round(sub*.05);const sc=Math.round(sub*.02);document.getElementById('bill-items-list').innerHTML=o.items.map(i=>`<div class="bill-row"><span>${i.name} x${i.qty}</span><span>Rs ${i.price*i.qty}</span></div>`).join('');document.getElementById('bill-sub').textContent='Rs '+sub;document.getElementById('bill-gst').textContent='Rs '+gst;document.getElementById('bill-sc').textContent='Rs '+sc;document.getElementById('bill-total').textContent='Rs '+(sub+gst+sc);openM('m-bill');}
+function getGSTRate(){return parseFloat(localStorage.getItem('tt_gst_'+(R?.id||'demo'))||window.GST_RATE||5);}
+function getSCRate(){return parseFloat(localStorage.getItem('tt_sc_'+(R?.id||'demo'))||window.SC_RATE||2);}
+function showSampleBill(){
+  const gstRate=getGSTRate(); const scRate=getSCRate();
+  document.getElementById('bill-rname').textContent=(R?.name||'Restaurant').toUpperCase();
+  document.getElementById('bill-info').textContent='Table 3 — Invoice — '+new Date().toLocaleDateString('en-IN');
+  const items=[{name:'Butter Chicken x2',total:760},{name:'Dal Makhani x1',total:260},{name:'Butter Naan x4',total:240}];
+  const sub=1260;
+  const gst=Math.round(sub*gstRate/100);
+  const sc=Math.round(sub*scRate/100);
+  document.getElementById('bill-items-list').innerHTML=items.map(i=>`<div class="bill-row"><span>${i.name}</span><span>Rs ${i.total}</span></div>`).join('');
+  document.getElementById('bill-sub').textContent='Rs '+sub;
+  // Hide GST row if 0
+  document.getElementById('bill-gst-row').style.display=gstRate>0?'flex':'none';
+  document.getElementById('bill-gst-label').textContent='GST ('+gstRate+'%)';
+  document.getElementById('bill-gst').textContent='Rs '+gst;
+  document.getElementById('bill-sc-row').style.display=scRate>0?'flex':'none';
+  document.getElementById('bill-sc-label').textContent='Service Charge ('+scRate+'%)';
+  document.getElementById('bill-sc').textContent='Rs '+sc;
+  document.getElementById('bill-total').textContent='Rs '+(sub+gst+sc);
+  openM('m-bill');
+}
+function billOrder(id){
+  const o=orders.find(x=>x.id===id);if(!o)return;
+  const gstRate=getGSTRate(); const scRate=getSCRate();
+  document.getElementById('bill-rname').textContent=(R?.name||'Restaurant').toUpperCase();
+  document.getElementById('bill-info').textContent=`Table ${o.table} — Order #${o.id}`;
+  const sub=o.total;
+  const gst=Math.round(sub*gstRate/100);
+  const sc=Math.round(sub*scRate/100);
+  document.getElementById('bill-items-list').innerHTML=o.items.map(i=>`<div class="bill-row"><span>${i.name} x${i.qty}</span><span>Rs ${i.price*i.qty}</span></div>`).join('');
+  document.getElementById('bill-sub').textContent='Rs '+sub;
+  document.getElementById('bill-gst-row').style.display=gstRate>0?'flex':'none';
+  document.getElementById('bill-gst-label').textContent='GST ('+gstRate+'%)';
+  document.getElementById('bill-gst').textContent='Rs '+gst;
+  document.getElementById('bill-sc-row').style.display=scRate>0?'flex':'none';
+  document.getElementById('bill-sc-label').textContent='Service Charge ('+scRate+'%)';
+  document.getElementById('bill-sc').textContent='Rs '+sc;
+  document.getElementById('bill-total').textContent='Rs '+(sub+gst+sc);
+  openM('m-bill');
+}
 function renderRequests(){document.getElementById('st-calls').textContent=calls.length;const badge=document.getElementById('req-badge');badge.style.display=calls.length>0?'inline':'none';badge.textContent=calls.length;const el=document.getElementById('req-list');if(!calls.length){el.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:var(--r)"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">All Clear</div><div>No pending requests</div></div>`;return;}el.innerHTML=calls.map((c,i)=>`<div class="req-item"><div><div class="req-tbl">Table ${c.table}</div><div class="req-type">${c.type}</div><div class="req-time">${c.time}</div></div><button class="btn btn-ghost btn-sm" onclick="dimReq(${i})">Done</button></div>`).join('');}
 function dimReq(i){calls.splice(i,1);renderRequests();notify('Done','Request dismissed');}
 function renderAnalytics(){const top=[{n:'Butter Chicken',c:34,p:85},{n:'Dum Biryani',c:28,p:70},{n:'Paneer Tikka',c:22,p:55},{n:'Mango Lassi',c:19,p:48},{n:'Gulab Jamun',c:15,p:38}];document.getElementById('top-items').innerHTML=top.map(i=>`<div class="bar-row"><div class="bar-label">${i.n}</div><div class="bar-track"><div class="bar-fill" style="width:${i.p}%"></div></div><div class="bar-val">${i.c}</div></div>`).join('');const cats=[{n:'Main Course',p:80},{n:'Biryani',p:65},{n:'Starters',p:55},{n:'Drinks',p:40},{n:'Desserts',p:30}];document.getElementById('cat-perf').innerHTML=cats.map(c=>`<div class="bar-row"><div class="bar-label">${c.n}</div><div class="bar-track"><div class="bar-fill" style="width:${c.p}%"></div></div><div class="bar-val">${c.p}%</div></div>`).join('');const days=[{d:'Mon',v:8200},{d:'Tue',v:9400},{d:'Wed',v:7800},{d:'Thu',v:11200},{d:'Fri',v:13400},{d:'Sat',v:15600},{d:'Sun',v:12450}];const mx=Math.max(...days.map(d=>d.v));document.getElementById('week-rev').innerHTML=days.map(d=>`<div class="bar-row"><div class="bar-label">${d.d}</div><div class="bar-track"><div class="bar-fill" style="width:${(d.v/mx*100).toFixed(0)}%"></div></div><div class="bar-val" style="min-width:50px">Rs ${(d.v/1000).toFixed(1)}k</div></div>`).join('');const hrs=[{n:'12–2pm',p:90},{n:'7–9pm',p:100},{n:'9–11pm',p:75},{n:'2–4pm',p:40},{n:'6–7pm',p:62}];document.getElementById('peak-hours').innerHTML=hrs.map(h=>`<div class="bar-row"><div class="bar-label">${h.n}</div><div class="bar-track"><div class="bar-fill" style="width:${h.p}%"></div></div><div class="bar-val">${h.p}%</div></div>`).join('');}
 function renderFBView(){document.getElementById('st-fb').textContent=feedbacks.length;const el=document.getElementById('fb-view');if(!feedbacks.length){el.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:var(--r)"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">No Feedback</div><div>Customer feedback will appear here</div></div>`;return;}el.innerHTML='<div style="display:flex;flex-direction:column;gap:8px">'+feedbacks.map(f=>`<div style="background:var(--white);border:1px solid var(--border);border-left:3px solid var(--gold);padding:18px 20px;border-radius:var(--r)"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-weight:600">Table ${f.table}</span><span style="font-size:11px;color:var(--muted)">${f.time}</span></div><div style="font-size:11px;color:var(--muted);margin-bottom:6px">Food: ${'★'.repeat(f.food)} — Service: ${'★'.repeat(f.svc)}</div><div style="font-size:13px;font-style:italic">"${f.text}"</div></div>`).join('')+'</div>';}
-async function saveSettings(){const rname=document.getElementById('set-rname').value||R?.name;const tables=parseInt(document.getElementById('set-tables').value)||10;totalTables=tables;if(R){R.name=rname;R.tables=tables;if(R.id!=='demo')await sb.from('restaurants').update({name:rname,tables}).eq('id',R.id);}document.getElementById('sb-rname').textContent=rname;document.getElementById('wlcm').textContent=rname;notify('Saved','Settings updated');}
+async function saveSettings(){
+  const rname=document.getElementById('set-rname').value||R?.name;
+  const tables=parseInt(document.getElementById('set-tables').value)||10;
+  const gstRate=parseFloat(document.getElementById('set-gst-rate').value)||0;
+  const scRate=parseFloat(document.getElementById('set-sc-rate').value)||0;
+  totalTables=tables;
+  window.GST_RATE=gstRate;
+  window.SC_RATE=scRate;
+  if(R){
+    R.name=rname;R.tables=tables;R.gst_rate=gstRate;R.sc_rate=scRate;
+    if(R.id!=='demo') await sb.from('restaurants').update({name:rname,tables}).eq('id',R.id);
+  }
+  // Save to localStorage
+  localStorage.setItem('tt_gst_'+R.id, gstRate);
+  localStorage.setItem('tt_sc_'+R.id, scRate);
+  document.getElementById('sb-rname').textContent=rname;
+  document.getElementById('wlcm').textContent=rname;
+  notify('Saved','Settings updated successfully');
+}
 async function loadCustMenu(restoId,tableNum){document.getElementById('cur-table').textContent=tableNum;document.getElementById('mw-t').textContent=tableNum;try{if(restoId!=='demo'){const{data:resto}=await sb.from('restaurants').select('*').eq('id',restoId).single();if(resto){document.getElementById('menu-rname').textContent=resto.name;R=resto;}const{data:items}=await sb.from('menu_items').select('*').eq('restaurant_id',restoId);if(items&&items.length)menu=items;}else{document.getElementById('menu-rname').textContent='The Grand Kitchen';menu=[{id:1,name:'Seekh Kebab',description:'Juicy minced lamb kebab',price:280,emoji:'🥩',category:'Starters',is_veg:false},{id:2,name:'Paneer Tikka',description:'Smoky tandoor paneer',price:220,emoji:'🧀',category:'Starters',is_veg:true},{id:3,name:'Butter Chicken',description:'Rich creamy tomato gravy',price:380,emoji:'🍛',category:'Main Course',is_veg:false},{id:4,name:'Dal Makhani',description:'Slow cooked black dal',price:260,emoji:'🫘',category:'Main Course',is_veg:true},{id:5,name:'Dum Biryani',description:'Aromatic dum biryani',price:420,emoji:'🍚',category:'Biryani & Rice',is_veg:false},{id:6,name:'Mango Lassi',description:'Creamy mango yogurt',price:120,emoji:'🥭',category:'Drinks',is_veg:true}];}}catch(e){}renderCustMenu();showS('s-menu');}
 function previewMenu(){document.getElementById('menu-rname').textContent=R?.name||'Restaurant';renderCustMenu();showS('s-menu');}
 function renderCustMenu(){const cats=[...new Set(menu.map(i=>i.category))];if(!cats.length)return;activeCat=cats[0];document.getElementById('menu-cats').innerHTML=cats.map((c,i)=>`<button class="cat-pill${i===0?' active':''}" onclick="filterCat(this,'${c}')">${c}</button>`).join('');renderItems();}
@@ -1470,7 +1554,16 @@ function renderItems(){const items=menu.filter(i=>i.category===activeCat);docume
 function getItem(id){return menu.find(i=>i.id===id);}
 function addCart(id){cart[id]=(cart[id]||0)+1;updateCart();notify('Added',getItem(id).name+' added to cart');}
 function updateCart(){const ids=Object.keys(cart);const cnt=ids.reduce((s,id)=>s+cart[id],0);const tot=ids.reduce((s,id)=>s+getItem(parseInt(id)).price*cart[id],0);document.getElementById('cf-cnt').textContent=cnt;document.getElementById('cf-total').textContent=tot;cnt>0?document.getElementById('cart-float').classList.add('vis'):document.getElementById('cart-float').classList.remove('vis');renderCartScreen();}
-function renderCartScreen(){const ids=Object.keys(cart).filter(id=>cart[id]>0);const el=document.getElementById('cart-list');if(!ids.length){el.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted)"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">Empty Cart</div><div>Add items from the menu</div></div>`;['s-sub','s-gst','s-tot'].forEach(id=>document.getElementById(id).textContent='Rs 0');return;}el.innerHTML=ids.map(id=>{const item=getItem(parseInt(id));return`<div class="cart-item"><div class="ci-img">${item.img?`<img src="${item.img}">`:(item.emoji||'')}</div><div class="ci-info"><div class="ci-name">${item.name}</div><div class="ci-unit">Rs ${item.price} each</div></div><div class="qty-ctl"><button class="qty-btn" onclick="chgQ(${id},-1)">−</button><span class="qty-num">${cart[id]}</span><button class="qty-btn" onclick="chgQ(${id},1)">+</button></div></div>`;}).join('');const sub=ids.reduce((s,id)=>s+getItem(parseInt(id)).price*cart[id],0);const gst=Math.round(sub*.05);document.getElementById('s-sub').textContent='Rs '+sub;document.getElementById('s-gst').textContent='Rs '+gst;document.getElementById('s-tot').textContent='Rs '+(sub+gst);}
+function renderCartScreen(){const ids=Object.keys(cart).filter(id=>cart[id]>0);const el=document.getElementById('cart-list');if(!ids.length){el.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted)"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">Empty Cart</div><div>Add items from the menu</div></div>`;['s-sub','s-gst','s-tot'].forEach(id=>document.getElementById(id).textContent='Rs 0');return;}el.innerHTML=ids.map(id=>{const item=getItem(parseInt(id));return`<div class="cart-item"><div class="ci-img">${item.img?`<img src="${item.img}">`:(item.emoji||'')}</div><div class="ci-info"><div class="ci-name">${item.name}</div><div class="ci-unit">Rs ${item.price} each</div></div><div class="qty-ctl"><button class="qty-btn" onclick="chgQ(${id},-1)">−</button><span class="qty-num">${cart[id]}</span><button class="qty-btn" onclick="chgQ(${id},1)">+</button></div></div>`;}).join('');const sub=ids.reduce((s,id)=>s+getItem(parseInt(id)).price*cart[id],0);
+  const gstRate=getGSTRate();
+  const gst=Math.round(sub*gstRate/100);
+  document.getElementById('s-sub').textContent='Rs '+sub;
+  const gstRow=document.getElementById('cart-gst-row');
+  const gstLabel=document.getElementById('cart-gst-label');
+  if(gstRow) gstRow.style.display=gstRate>0?'flex':'none';
+  if(gstLabel) gstLabel.textContent='GST ('+gstRate+'%)';
+  document.getElementById('s-gst').textContent='Rs '+gst;
+  document.getElementById('s-tot').textContent='Rs '+(sub+gst);}
 function chgQ(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];updateCart();}
 async function placeOrder(){if(!Object.keys(cart).length){notify('Cart Empty','Add items first','error');return;}oCount++;document.getElementById('order-num').textContent='Order #'+oCount;const items=Object.keys(cart).map(id=>({id:parseInt(id),name:getItem(parseInt(id)).name,qty:cart[id],price:getItem(parseInt(id)).price}));const total=items.reduce((s,i)=>s+i.price*i.qty,0);orders.push({id:oCount,table:curTable,items,total,status:'pending',time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})});try{await sb.from('orders').insert({restaurant_id:R?.id||'demo',table_number:curTable,items:JSON.stringify(items),total_amount:total,status:'pending'});}catch(e){}showS('s-success');}
 async function confWaiter(){

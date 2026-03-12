@@ -648,8 +648,10 @@ textarea.inp { resize: vertical; min-height: 100px; }
     <div class="bill-head">
       <div class="bill-rname" id="bill-rname">RESTAURANT NAME</div>
       <div class="bill-info" id="bill-info">Table 1 — Invoice</div>
+      <div id="bill-datetime" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
       <div style="margin-top:12px"><span class="gold-accent" style="margin:0 auto"></span></div>
     </div>
+    <div id="bill-orders-summary" style="font-size:11px;color:var(--muted);padding:8px 0;border-bottom:1px dashed var(--border);margin-bottom:8px"></div>
     <div id="bill-items-list"></div>
     <div style="margin-top:12px">
       <div class="bill-row"><span>Subtotal</span><span id="bill-sub">Rs 0</span></div>
@@ -660,7 +662,8 @@ textarea.inp { resize: vertical; min-height: 100px; }
     <div style="text-align:center;margin-top:18px;font-size:11px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase">Thank you for dining with us</div>
     <div class="modal-btns">
       <button class="btn btn-outline" style="flex:1" onclick="closeM('m-bill')">Close</button>
-      <button class="btn btn-primary" style="flex:1" onclick="window.print()">Print Bill</button>
+      <button class="btn btn-primary" style="flex:1" onclick="window.print()">🖨️ Print</button>
+      <button class="btn btn-ghost" style="flex:1;color:var(--red,#ef4444);border-color:var(--red,#ef4444)" onclick="clearTableConfirm()">🗑️ Clear Table</button>
     </div>
   </div>
 </div>
@@ -1182,6 +1185,22 @@ textarea.inp { resize: vertical; min-height: 100px; }
     <!-- Buttons -->
     <button class="btn btn-outline" style="width:100%;padding:13px;margin-bottom:10px" onclick="showScreen('s-menu')">+ Add More Items</button>
     <button class="btn btn-ghost" style="width:100%;padding:11px" onclick="showScreen('s-feedback')">Leave Feedback</button>
+  </div>
+</div>
+
+<!-- MODAL: CLEAR TABLE CONFIRM -->
+<div class="mov" id="m-clear-table">
+  <div class="modal" style="max-width:360px;text-align:center">
+    <div style="font-size:48px;margin-bottom:12px">🗑️</div>
+    <div style="font-family:var(--fd);font-size:22px;margin-bottom:8px">Table Clear Karein?</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">
+      Is table ke saare orders dashboard se hat jaayenge.<br>
+      <strong>Record Supabase mein safe rahega.</strong>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-outline" style="flex:1" onclick="closeM('m-clear-table')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1;background:#ef4444;border-color:#ef4444" onclick="clearTable()">Haan, Clear Karo</button>
+    </div>
   </div>
 </div>
 
@@ -1844,7 +1863,7 @@ function openAddStaff(){editSId=null;document.getElementById('m-staff-title').te
 function openEditS(id){const s=staff.find(x=>x.id===id);if(!s)return;editSId=id;document.getElementById('m-staff-title').textContent='Edit Staff';document.getElementById('st-name').value=s.name;document.getElementById('st-phone').value=s.phone||'';document.getElementById('st-role').value=s.role;document.getElementById('st-shift').value=s.shift||'Full Day';document.getElementById('st-id').value=id;openM('m-staff');}
 function saveStaff(){const name=document.getElementById('st-name').value.trim(),role=document.getElementById('st-role').value,phone=document.getElementById('st-phone').value.trim(),shift=document.getElementById('st-shift').value;if(!name||!role){notify('Error','Name and role required','error');return;}if(editSId){const idx=staff.findIndex(s=>s.id===editSId);staff[idx]={...staff[idx],name,role,phone,shift};notify('Updated',name+' updated');}else{const nid=staff.length>0?Math.max(...staff.map(s=>s.id))+1:1;staff.push({id:nid,name,role,phone,shift});notify('Added',name+' added');}closeM('m-staff');renderStaff();}
 function delStaff(id){const s=staff.find(x=>x.id===id);if(confirm(`Remove ${s.name}?`)){staff=staff.filter(x=>x.id!==id);notify('Removed',s.name);renderStaff();}}
-function renderOrders(filter){filter=filter||'all';updateBadges();['all','pending','prep','ready'].forEach(f=>{const el=document.getElementById(`of-${f}`);if(el){el.style.background=f===filter?'var(--ink)':'var(--bg2)';el.style.color=f===filter?'white':'var(--ink3)';el.style.border=f===filter?'1.5px solid var(--ink)':'1px solid var(--border)';}});const items=filter==='all'?orders:orders.filter(o=>o.status===(filter==='prep'?'preparing':filter));const c=document.getElementById('orders-container');if(!items.length){c.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:var(--r);grid-column:1/-1"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">No Orders</div><div>No orders ${filter==='all'?'yet':'in this status'}</div></div>`;return;}c.innerHTML=items.map(o=>`<div class="order-card ${o.status}"><div class="oc-top"><div><div class="oc-tbl">Table ${o.table}</div><div class="oc-time">#${o.id} — ${o.time}</div></div><span class="tag ${o.status==='pending'?'tag-gold':o.status==='preparing'?'tag-amber':'tag-green'}">${o.status}</span></div><div class="oc-items">${o.items.map(i=>`<div class="oc-row"><span>${i.name} x${i.qty}</span><span style="font-weight:600">Rs ${i.price*i.qty}</span></div>`).join('')}</div><div class="oc-total"><span>Total</span><span>Rs ${o.total}</span></div><div class="oc-acts">${o.status==='pending'?`<button class="btn btn-outline btn-sm" onclick="updOrder(${o.id},'preparing')">Start Cooking</button>`:''} ${o.status==='preparing'?`<button class="btn btn-primary btn-sm" onclick="updOrder(${o.id},'ready')">On The Way</button>`:''} ${o.status==='ready'?`<button class="btn btn-primary btn-sm" onclick="updOrder(${o.id},'delivered')">Mark Delivered</button>`:''}<button class="btn btn-ghost btn-sm" onclick="billOrder(${o.id})">Bill</button></div></div>`).join('');}
+function renderOrders(filter){filter=filter||'all';updateBadges();['all','pending','prep','ready'].forEach(f=>{const el=document.getElementById(`of-${f}`);if(el){el.style.background=f===filter?'var(--ink)':'var(--bg2)';el.style.color=f===filter?'white':'var(--ink3)';el.style.border=f===filter?'1.5px solid var(--ink)':'1px solid var(--border)';}});const items=filter==='all'?orders:orders.filter(o=>o.status===(filter==='prep'?'preparing':filter));const c=document.getElementById('orders-container');if(!items.length){c.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:var(--r);grid-column:1/-1"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">No Orders</div><div>No orders ${filter==='all'?'yet':'in this status'}</div></div>`;return;}c.innerHTML=items.map(o=>`<div class="order-card ${o.status}"><div class="oc-top"><div><div class="oc-tbl">Table ${o.table}</div><div class="oc-time">#${o.id} — ${o.time}</div></div><span class="tag ${o.status==='pending'?'tag-gold':o.status==='preparing'?'tag-amber':'tag-green'}">${o.status}</span></div><div class="oc-items">${o.items.map(i=>`<div class="oc-row"><span>${i.name} x${i.qty}</span><span style="font-weight:600">Rs ${i.price*i.qty}</span></div>`).join('')}</div><div class="oc-total"><span>Total</span><span>Rs ${o.total}</span></div><div class="oc-acts">${o.status==='pending'?`<button class="btn btn-outline btn-sm" onclick="updOrder(${o.id},'preparing')">Start Cooking</button>`:''} ${o.status==='preparing'?`<button class="btn btn-primary btn-sm" onclick="updOrder(${o.id},'ready')">On The Way</button>`:''} ${o.status==='ready'?`<button class="btn btn-primary btn-sm" onclick="updOrder(${o.id},'delivered')">Mark Delivered</button>`:''}<button class="btn btn-ghost btn-sm" onclick="billTable(${o.table})">🧾 Table Bill</button></div></div>`).join('');}
 function filterOrders(f){renderOrders(f);}
 async function updOrder(id,status){
   const idx=orders.findIndex(o=>o.id===id);
@@ -1895,24 +1914,95 @@ function showSampleBill(){
   document.getElementById('bill-total').textContent='Rs '+(sub+gst+sc);
   openM('m-bill');
 }
-function billOrder(id){
-  const o=orders.find(x=>x.id===id);if(!o)return;
+function billTable(tableNum){
+  // Get ALL orders for this table
+  const tableOrders = orders.filter(o => o.table == tableNum);
+  if(!tableOrders.length){ notify('No Orders','Is table ka koi order nahi','error'); return; }
+  
   const gstRate=getGSTRate(); const scRate=getSCRate();
-  document.getElementById('bill-rname').textContent=(R?.name||'Restaurant').toUpperCase();
-  document.getElementById('bill-info').textContent=`Table ${o.table} — Order #${o.id}`;
-  const sub=o.total;
-  const gst=Math.round(sub*gstRate/100);
-  const sc=Math.round(sub*scRate/100);
-  document.getElementById('bill-items-list').innerHTML=o.items.map(i=>`<div class="bill-row"><span>${i.name} x${i.qty}</span><span>Rs ${i.price*i.qty}</span></div>`).join('');
-  document.getElementById('bill-sub').textContent='Rs '+sub;
-  document.getElementById('bill-gst-row').style.display=gstRate>0?'flex':'none';
-  document.getElementById('bill-gst-label').textContent='GST ('+gstRate+'%)';
-  document.getElementById('bill-gst').textContent='Rs '+gst;
-  document.getElementById('bill-sc-row').style.display=scRate>0?'flex':'none';
-  document.getElementById('bill-sc-label').textContent='Service Charge ('+scRate+'%)';
-  document.getElementById('bill-sc').textContent='Rs '+sc;
-  document.getElementById('bill-total').textContent='Rs '+(sub+gst+sc);
+  const now = new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  
+  // Merge all items from all orders
+  const allItems = {};
+  tableOrders.forEach(o => {
+    o.items.forEach(i => {
+      const key = i.name;
+      if(allItems[key]){ allItems[key].qty += i.qty; allItems[key].total += i.price*i.qty; }
+      else { allItems[key] = {name:i.name, qty:i.qty, price:i.price, total:i.price*i.qty}; }
+    });
+  });
+  
+  const mergedItems = Object.values(allItems);
+  const sub = mergedItems.reduce((s,i)=>s+i.total, 0);
+  const gst = Math.round(sub*gstRate/100);
+  const sc = Math.round(sub*scRate/100);
+  const grand = sub+gst+sc;
+  
+  document.getElementById('bill-rname').textContent = (R?.name||'Restaurant').toUpperCase();
+  document.getElementById('bill-info').textContent = `Table ${tableNum} — Consolidated Bill`;
+  document.getElementById('bill-datetime').textContent = now;
+  document.getElementById('bill-orders-summary').textContent = `${tableOrders.length} order(s) • ${mergedItems.length} item types`;
+  
+  document.getElementById('bill-items-list').innerHTML = mergedItems.map(i=>`
+    <div class="bill-row">
+      <span>${i.name} <span style="color:var(--muted)">x${i.qty}</span></span>
+      <span>Rs ${i.total}</span>
+    </div>`).join('');
+  
+  document.getElementById('bill-sub').textContent = 'Rs '+sub;
+  document.getElementById('bill-gst-row').style.display = gstRate>0?'flex':'none';
+  document.getElementById('bill-gst-label').textContent = 'GST ('+gstRate+'%)';
+  document.getElementById('bill-gst').textContent = 'Rs '+gst;
+  document.getElementById('bill-sc-row').style.display = scRate>0?'flex':'none';
+  document.getElementById('bill-sc-label').textContent = 'Service Charge ('+scRate+'%)';
+  document.getElementById('bill-sc').textContent = 'Rs '+sc;
+  document.getElementById('bill-total').textContent = 'Rs '+grand;
   openM('m-bill');
+}
+
+function billOrder(id){ 
+  const o=orders.find(x=>x.id===id);
+  if(o) billTable(o.table);
+}
+
+let clearingTable = null;
+
+function clearTableConfirm(){
+  // Get table number from bill info
+  const info = document.getElementById('bill-info').textContent;
+  const match = info.match(/Table (\d+)/);
+  if(!match) return;
+  clearingTable = parseInt(match[1]);
+  
+  closeM('m-bill');
+  // Show confirm modal
+  openM('m-clear-table');
+}
+
+async function clearTable(){
+  if(!clearingTable) return;
+  closeM('m-clear-table');
+  
+  // Remove from local orders array
+  const tableOrders = orders.filter(o => o.table == clearingTable);
+  orders = orders.filter(o => o.table != clearingTable);
+  
+  // Mark orders as 'cleared' in Supabase (keep record but mark done)
+  if(R?.id !== 'demo'){
+    try{
+      for(const o of tableOrders){
+        if(o.db_id){
+          await sb.from('orders').update({status:'cleared'}).eq('id', o.db_id);
+        }
+      }
+    }catch(e){ console.log('Clear table error:', e); }
+  }
+  
+  updateBadges();
+  renderOrders();
+  renderBilling();
+  notify('Table Cleared', 'Table '+clearingTable+' saaf ho gaya! ✅');
+  clearingTable = null;
 }
 function renderRequests(){updateBadges();const el=document.getElementById('req-list');if(!calls.length){el.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:var(--r)"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">All Clear</div><div>No pending requests</div></div>`;return;}el.innerHTML=calls.map((c,i)=>`<div class="req-item"><div><div class="req-tbl">Table ${c.table}</div><div class="req-type">${c.type}</div><div class="req-time">${c.time}</div></div><button class="btn btn-ghost btn-sm" onclick="dimReq(${i})">Done</button></div>`).join('');}
 function dimReq(i){
@@ -2035,7 +2125,7 @@ function renderBilling(){
       <td>Rs ${gst}</td>
       <td><span class="tag tag-gold">Rs ${grand}</span></td>
       <td><span class="tag ${statusColor}">${o.status}</span></td>
-      <td><button class="btn btn-ghost btn-xs" onclick="billOrder(${o.id})">View</button></td>
+      <td><button class="btn btn-ghost btn-xs" onclick="billTable(${o.table})">View Bill</button></td>
     </tr>`;
   }).join('');
 }

@@ -1190,15 +1190,70 @@ textarea.inp { resize: vertical; min-height: 100px; }
 
 <!-- MODAL: CLEAR TABLE CONFIRM -->
 <div class="mov" id="m-clear-table">
-  <div class="modal" style="max-width:360px;text-align:center">
-    <div style="font-size:48px;margin-bottom:12px">🗑️</div>
-    <div style="font-family:var(--fd);font-size:22px;margin-bottom:8px">Table Clear Karein?</div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">
-      Bill clear hone ke baad naye customer ke liye table ready ho jaayega.
+  <div class="modal" style="max-width:380px;text-align:center">
+    
+    <!-- Step 1 -->
+    <div id="clear-step1">
+      <div style="font-size:48px;margin-bottom:12px">🧾</div>
+      <div style="font-family:var(--fd);font-size:22px;margin-bottom:8px">Table Clear Karein?</div>
+      <div id="clear-table-info" style="font-size:13px;color:var(--muted);margin-bottom:6px"></div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">
+        Kya aapne bill print kar liya?
+      </div>
+      <div class="modal-btns">
+        <button class="btn btn-outline" style="flex:1" onclick="closeM('m-clear-table')">Cancel</button>
+        <button class="btn btn-primary" style="flex:1" onclick="goStep2()">Haan, Aage Badho →</button>
+      </div>
     </div>
-    <div class="modal-btns">
-      <button class="btn btn-outline" style="flex:1" onclick="closeM('m-clear-table')">Cancel</button>
-      <button class="btn btn-primary" style="flex:1;background:#ef4444;border-color:#ef4444" onclick="clearTable()">Haan, Clear Karo</button>
+
+    <!-- Step 2 -->
+    <div id="clear-step2" style="display:none">
+      <div style="font-size:48px;margin-bottom:12px">⚠️</div>
+      <div style="font-family:var(--fd);font-size:22px;margin-bottom:8px;color:#ef4444">Pakka Sure Ho?</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">
+        Table clear hone ke baad is session ka bill dobara nahi banega.<br>
+        <strong>Naya customer fresh start karega.</strong>
+      </div>
+      <div class="modal-btns">
+        <button class="btn btn-outline" style="flex:1" onclick="goStep1()">← Wapas Jao</button>
+        <button class="btn btn-primary" style="flex:1;background:#ef4444;border-color:#ef4444" onclick="clearTable()">✓ Table Clear Karo</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="screen" id="s-admin" style="background:var(--bg);min-height:100vh">
+  <div style="background:var(--ink);padding:16px 24px;display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <div style="font-family:var(--fd);font-size:20px;color:white">MenuZy Admin</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.5)">Super Admin Panel</div>
+    </div>
+    <button class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.3);font-size:12px" onclick="showS('s-landing')">← Exit</button>
+  </div>
+  <div style="max-width:900px;margin:0 auto;padding:24px 16px">
+    <!-- Stats -->
+    <div class="stats-row" style="margin-bottom:24px">
+      <div class="stat-card"><div class="sc-label">Total Restaurants</div><div class="sc-value" id="adm-total">0</div><div class="sc-sub">Registered</div></div>
+      <div class="stat-card"><div class="sc-label">Active Trials</div><div class="sc-value" id="adm-trials">0</div><div class="sc-sub">14 day trial</div></div>
+      <div class="stat-card"><div class="sc-label">Paid Subscribers</div><div class="sc-value" id="adm-paid">0</div><div class="sc-sub">Active plans</div></div>
+      <div class="stat-card"><div class="sc-label">This Month Revenue</div><div class="sc-value" id="adm-rev">Rs 0</div><div class="sc-sub">Subscriptions</div></div>
+    </div>
+    <!-- Restaurant List -->
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-family:var(--fd);font-size:18px">All Restaurants</div>
+        <button class="btn btn-primary btn-sm" onclick="loadAdminData()">🔄 Refresh</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="d-table">
+          <thead><tr><th>#</th><th>Restaurant</th><th>Owner</th><th>Email</th><th>Joined</th><th>Plan</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="adm-table-body">
+            <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -1404,9 +1459,19 @@ function resetMenuForm(){
   updateCatDropdown();
 }
 
+const ADMIN_KEY = 'dipanshu@menuzy2024';
+
 window.addEventListener('DOMContentLoaded',async()=>{
   const p=new URLSearchParams(window.location.search);
-  const tbl=p.get('table'),rid=p.get('resto');
+  const tbl=p.get('table'),rid=p.get('resto'),adm=p.get('admin');
+  
+  // Admin panel access
+  if(adm===ADMIN_KEY){
+    showS('s-admin');
+    loadAdminData();
+    return;
+  }
+  
   if(tbl&&rid){curTable=parseInt(tbl);await loadCustMenu(rid,curTable);}
   else{
     const s=localStorage.getItem('tt_s');
@@ -1436,6 +1501,16 @@ async function doSignup(){
     localStorage.setItem('tt_s',JSON.stringify({id:data.id,email,name:rname}));
     R=data;totalTables=10;menu=[];
     notify('Account Created!','Welcome to MenuZy');
+    // Send signup notification via Supabase (store in admin_notifications table)
+    try{
+      await sb.from('admin_notifications').insert({
+        type:'new_signup',
+        restaurant_name:rname,
+        owner_name:name,
+        email:email,
+        message:'New restaurant signed up: '+rname+' by '+name+' ('+email+')'
+      });
+    }catch(e){} // Silent fail if table doesn't exist yet
     showS('s-dash');initDash();
   }catch(e){notify('Error',e.message||'Something went wrong','error');}
   finally{btn.innerHTML='Create Account';btn.disabled=false;}
@@ -1885,7 +1960,7 @@ function renderTables(){
         <div style="font-size:11px;font-weight:700;color:var(--gold);margin-top:4px">Rs ${tableTotal}</div>
         <div style="margin-top:8px;display:flex;gap:4px;flex-direction:column">
           <button class="btn btn-primary btn-xs" style="font-size:10px;padding:4px 6px" onclick="event.stopPropagation();billTable(${t})">🧾 Bill</button>
-          <button class="btn btn-ghost btn-xs" style="font-size:10px;padding:4px 6px;color:#ef4444;border-color:#ef4444" onclick="event.stopPropagation();closeTableSession(${t})">✓ Clear</button>
+          <button class="btn btn-ghost btn-xs" style="font-size:10px;padding:4px 6px;color:#ef4444;border-color:#ef4444" onclick="event.stopPropagation();openClearConfirm(${t})">✓ Clear</button>
         </div>`;
     } else {
       d.innerHTML=`
@@ -1977,8 +2052,9 @@ function showSampleBill(){
   openM('m-bill');
 }
 function billTable(tableNum){
-  // Get ALL orders for this table
-  const tableOrders = orders.filter(o => String(o.table) === String(tableNum));
+  // Get ALL orders for this table — active + cleared
+  const allTableOrders = [...orders, ...clearedOrders].filter(o => String(o.table) === String(tableNum));
+  const tableOrders = allTableOrders;
   if(!tableOrders.length){ notify('No Orders','Is table ka koi order nahi','error'); return; }
   
   const gstRate=getGSTRate(); const scRate=getSCRate();
@@ -2030,15 +2106,34 @@ function billOrder(id){
 let clearingTable = null;
 
 function clearTableConfirm(){
-  // Get table number from bill info
+  // Called from bill modal
   const info = document.getElementById('bill-info').textContent;
   const match = info.match(/Table (\d+)/);
   if(!match) return;
   clearingTable = parseInt(match[1]);
-  
   closeM('m-bill');
-  // Show confirm modal
+  openClearConfirm(clearingTable);
+}
+
+function openClearConfirm(tableNum){
+  clearingTable = tableNum;
+  const tableOrders = [...orders, ...clearedOrders].filter(o=>String(o.table)===String(tableNum));
+  const total = tableOrders.reduce((s,o)=>s+o.total,0);
+  document.getElementById('clear-table-info').textContent = 
+    'Table '+tableNum+' • '+tableOrders.length+' orders • Rs '+total+' total';
+  // Reset to step 1
+  goStep1();
   openM('m-clear-table');
+}
+
+function goStep1(){
+  document.getElementById('clear-step1').style.display='block';
+  document.getElementById('clear-step2').style.display='none';
+}
+
+function goStep2(){
+  document.getElementById('clear-step1').style.display='none';
+  document.getElementById('clear-step2').style.display='block';
 }
 
 async function clearTable(){
@@ -2157,7 +2252,8 @@ function renderBilling(){
     const sc=Math.round(sub*scRate/100);
     const grand=sub+gst+sc;
     const invNo='INV-'+String(idx+1).padStart(3,'0');
-    const statusColor=o.status==='delivered'?'tag-green':o.status==='ready'?'tag-amber':'tag-gold';
+    const statusColor=o.status==='cleared'?'tag-green':o.status==='delivered'?'tag-green':o.status==='ready'?'tag-amber':'tag-gold';
+    const statusLabel=o.status==='cleared'?'Paid ✓':o.status==='delivered'?'Delivered':o.status==='ready'?'Ready':o.status==='preparing'?'Preparing':'Pending';
     return `<tr>
       <td>${invNo}</td>
       <td>Table ${o.table}</td>
@@ -2165,11 +2261,66 @@ function renderBilling(){
       <td>Rs ${sub}</td>
       <td>Rs ${gst}</td>
       <td><span class="tag tag-gold">Rs ${grand}</span></td>
-      <td><span class="tag ${statusColor}">${o.status}</span></td>
+      <td><span class="tag ${statusColor}">${statusLabel}</span></td>
       <td><button class="btn btn-ghost btn-xs" onclick="billTable(${o.table})">View Bill</button></td>
     </tr>`;
   }).join('');
 }
+async function loadAdminData(){
+  try{
+    const{data:restaurants}=await sb.from('restaurants').select('*').order('created_at',{ascending:false});
+    if(!restaurants){return;}
+    
+    const total=restaurants.length;
+    const trials=restaurants.filter(r=>r.plan==='trial'||!r.plan).length;
+    const paid=restaurants.filter(r=>r.plan==='starter'||r.plan==='professional'||r.plan==='enterprise').length;
+    const planPrices={'starter':999,'professional':1999,'enterprise':4999};
+    const monthRev=restaurants.filter(r=>r.plan&&planPrices[r.plan]).reduce((s,r)=>s+(planPrices[r.plan]||0),0);
+    
+    document.getElementById('adm-total').textContent=total;
+    document.getElementById('adm-trials').textContent=trials;
+    document.getElementById('adm-paid').textContent=paid;
+    document.getElementById('adm-rev').textContent='Rs '+monthRev.toLocaleString('en-IN');
+    
+    const tbody=document.getElementById('adm-table-body');
+    tbody.innerHTML=restaurants.map((r,i)=>{
+      const joined=r.created_at?new Date(r.created_at).toLocaleDateString('en-IN'):'—';
+      const plan=r.plan||'trial';
+      const planColor=plan==='trial'?'tag-gold':plan==='enterprise'?'tag-amber':'tag-green';
+      const subStatus=r.subscription_status||'active';
+      const statusColor=subStatus==='active'?'tag-green':subStatus==='expired'?'tag-muted':'tag-gold';
+      return `<tr>
+        <td>${i+1}</td>
+        <td><strong>${r.name}</strong></td>
+        <td>${r.owner_name||'—'}</td>
+        <td style="font-size:12px">${r.email}</td>
+        <td style="font-size:12px">${joined}</td>
+        <td><span class="tag ${planColor}">${plan}</span></td>
+        <td><span class="tag ${statusColor}">${subStatus}</span></td>
+        <td>
+          <select class="inp" style="padding:4px 8px;font-size:11px;height:auto" onchange="updateRestoPlan('${r.id}',this.value)">
+            <option value="trial" ${plan==='trial'?'selected':''}>Trial</option>
+            <option value="starter" ${plan==='starter'?'selected':''}>Starter</option>
+            <option value="professional" ${plan==='professional'?'selected':''}>Professional</option>
+            <option value="enterprise" ${plan==='enterprise'?'selected':''}>Enterprise</option>
+            <option value="expired" ${plan==='expired'?'selected':''}>Expired</option>
+          </select>
+        </td>
+      </tr>`;
+    }).join('');
+  }catch(e){
+    document.getElementById('adm-table-body').innerHTML='<tr><td colspan="8" style="text-align:center;padding:40px;color:red">Error: '+e.message+'</td></tr>';
+  }
+}
+
+async function updateRestoPlan(restoId, newPlan){
+  try{
+    await sb.from('restaurants').update({plan:newPlan,subscription_status:newPlan==='expired'?'expired':'active'}).eq('id',restoId);
+    notify('Updated','Plan updated successfully ✅');
+    loadAdminData();
+  }catch(e){ notify('Error','Update failed','error'); }
+}
+
 function renderFBView(){document.getElementById('st-fb').textContent=feedbacks.length;const el=document.getElementById('fb-view');if(!feedbacks.length){el.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:var(--r)"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">No Feedback</div><div>Customer feedback will appear here</div></div>`;return;}el.innerHTML='<div style="display:flex;flex-direction:column;gap:8px">'+feedbacks.map(f=>`<div style="background:var(--white);border:1px solid var(--border);border-left:3px solid var(--gold);padding:18px 20px;border-radius:var(--r)"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-weight:600">Table ${f.table}</span><span style="font-size:11px;color:var(--muted)">${f.time}</span></div><div style="font-size:11px;color:var(--muted);margin-bottom:6px">Food: ${'★'.repeat(f.food)} — Service: ${'★'.repeat(f.svc)}</div><div style="font-size:13px;font-style:italic">"${f.text}"</div></div>`).join('')+'</div>';}
 function loadSettingsValues(){
   if(!R) return;

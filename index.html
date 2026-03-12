@@ -1194,8 +1194,7 @@ textarea.inp { resize: vertical; min-height: 100px; }
     <div style="font-size:48px;margin-bottom:12px">🗑️</div>
     <div style="font-family:var(--fd);font-size:22px;margin-bottom:8px">Table Clear Karein?</div>
     <div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">
-      Is table ke saare orders dashboard se hat jaayenge.<br>
-      <strong>Record Supabase mein safe rahega.</strong>
+      Bill clear hone ke baad naye customer ke liye table ready ho jaayega.
     </div>
     <div class="modal-btns">
       <button class="btn btn-outline" style="flex:1" onclick="closeM('m-clear-table')">Cancel</button>
@@ -1321,7 +1320,7 @@ textarea.inp { resize: vertical; min-height: 100px; }
 const SURL='https://omcvsfolasaicphknmmf.supabase.co';
 const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tY3ZzZm9sYXNhaWNwaGtubW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNjM5NzAsImV4cCI6MjA4ODYzOTk3MH0.CmD4DMTwWqopyinzAkFCaDWrdIrPP9T-e3a2cO6bswA';
 const sb=supabase.createClient(SURL,SKEY);
-let R=null,menu=[],staff=[],orders=[],calls=[],feedbacks=[],cart={},editId=null,editSId=null,imgData=null,ratings={f:0,s:0},activeCat='',activeMCat='All',curTable=1,totalTables=10,oCount=100;
+let R=null,menu=[],staff=[],orders=[],clearedOrders=[],calls=[],feedbacks=[],cart={},editId=null,editSId=null,imgData=null,ratings={f:0,s:0},activeCat='',activeMCat='All',curTable=1,totalTables=10,oCount=100,tableSessions={};
 
 // Default categories
 let customCats = ['Starters','Soups','Main Course','Biryani & Rice','Breads','Desserts','Drinks','Specials'];
@@ -1526,6 +1525,13 @@ async function loadOrdersFromDB(){
       updateBadges();
       document.getElementById('st-orders').textContent=orders.length;
       renderOrders();
+      // Restore table sessions from loaded orders
+      orders.forEach(o=>{
+        if(!tableSessions[o.table]){
+          tableSessions[o.table]={startTime:o.time,orders:[]};
+        }
+        tableSessions[o.table].orders.push(o.id);
+      });
       notify('Orders Loaded', orders.length+' aaj ke orders load hue');
     }
   }catch(e){ console.log('Load orders error:', e); }
@@ -1857,7 +1863,63 @@ async function delItem(id){const item=menu.find(i=>i.id===id);if(confirm(`Delete
 function renderQRs(){const n=parseInt(document.getElementById('qr-tc').value)||10;const grid=document.getElementById('qr-grid');grid.innerHTML='';const base=window.location.href.split('?')[0];const rid=R?.id||'demo';for(let t=1;t<=n;t++){const c=document.createElement('div');c.className='qr-card';c.innerHTML=`<div class="label" style="margin-bottom:4px">Table</div><div class="qr-tnum">${t}</div><div class="qr-box" id="qb-${t}"></div><button class="qr-dl" onclick="showQR(${t})">Download QR</button>`;grid.appendChild(c);setTimeout(()=>{const el=document.getElementById(`qb-${t}`);if(el){el.innerHTML='';try{new QRCode(el,{text:`${base}?table=${t}&resto=${rid}`,width:106,height:106,colorDark:'#000',colorLight:'#fff'});}catch(e){}}},60*t);}}
 function showQR(t){const base=window.location.href.split('?')[0];const rid=R?.id||'demo';document.getElementById('qr-n').textContent=t;const d=document.getElementById('qr-disp');d.innerHTML='';try{new QRCode(d,{text:`${base}?table=${t}&resto=${rid}`,width:168,height:168,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.H});}catch(e){}openM('m-qr');}
 function dlQR(){const canvas=document.querySelector('#qr-disp canvas');if(canvas){const a=document.createElement('a');a.download=`table-${document.getElementById('qr-n').textContent}.png`;a.href=canvas.toDataURL();a.click();notify('Downloaded','QR code saved');}}
-function renderTables(){const g=document.getElementById('tables-grid');g.innerHTML='';const occ=[3,5,7,9];for(let t=1;t<=totalTables;t++){const o=occ.includes(t);const d=document.createElement('div');d.className=`table-tile${o?' occ':''}`;d.innerHTML=`<div class="tt-num">${t}</div><div class="tt-status">${o?'Occupied':'Available'}</div>`;g.appendChild(d);}}
+function renderTables(){
+  const g=document.getElementById('tables-grid');
+  g.innerHTML='';
+  for(let t=1;t<=totalTables;t++){
+    const session=tableSessions[t];
+    const tableOrders=orders.filter(o=>String(o.table)===String(t));
+    const isOccupied=tableOrders.length>0;
+    const d=document.createElement('div');
+    d.className=`table-tile${isOccupied?' occ':''}`;
+    d.style.cursor=isOccupied?'pointer':'default';
+    d.style.position='relative';
+    
+    if(isOccupied){
+      const tableTotal=tableOrders.reduce((s,o)=>s+o.total,0);
+      const since=session?session.startTime:'';
+      d.innerHTML=`
+        <div class="tt-num">${t}</div>
+        <div class="tt-status" style="color:#f59e0b;font-weight:600">Occupied</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">${tableOrders.length} order${tableOrders.length>1?'s':''}</div>
+        <div style="font-size:11px;font-weight:700;color:var(--gold);margin-top:4px">Rs ${tableTotal}</div>
+        <div style="margin-top:8px;display:flex;gap:4px;flex-direction:column">
+          <button class="btn btn-primary btn-xs" style="font-size:10px;padding:4px 6px" onclick="event.stopPropagation();billTable(${t})">🧾 Bill</button>
+          <button class="btn btn-ghost btn-xs" style="font-size:10px;padding:4px 6px;color:#ef4444;border-color:#ef4444" onclick="event.stopPropagation();closeTableSession(${t})">✓ Clear</button>
+        </div>`;
+    } else {
+      d.innerHTML=`
+        <div class="tt-num">${t}</div>
+        <div class="tt-status" style="color:var(--green)">Available</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">Ready</div>`;
+    }
+    g.appendChild(d);
+  }
+}
+
+function closeTableSession(tableNum){
+  // Move orders to clearedOrders for analytics
+  const tableOrders=orders.filter(o=>String(o.table)===String(tableNum));
+  clearedOrders=clearedOrders.concat(tableOrders);
+  orders=orders.filter(o=>String(o.table)!==String(tableNum));
+  
+  // Clear session
+  delete tableSessions[tableNum];
+  
+  // Update Supabase
+  if(R?.id!=='demo'){
+    tableOrders.forEach(async o=>{
+      if(o.db_id){
+        try{ await sb.from('orders').update({status:'cleared'}).eq('id',o.db_id); }catch(e){}
+      }
+    });
+  }
+  
+  updateBadges();
+  renderTables();
+  renderOrders();
+  notify('Table '+tableNum+' Clear!','Naye customer ke liye ready ✅');
+}
 function renderStaff(){document.getElementById('st-staff').textContent=staff.length;const g=document.getElementById('staff-grid');if(!staff.length){g.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:var(--r);grid-column:1/-1"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">No Staff</div><div>Add staff members</div></div>`;return;}const rc={Waiter:'rt-waiter',Chef:'rt-chef',Manager:'rt-manager',Cashier:'rt-cashier'};g.innerHTML=staff.map(s=>`<div class="staff-card"><div class="staff-av">${s.name.charAt(0)}</div><div class="staff-name">${s.name}</div><div><span class="role-tag ${rc[s.role]||'rt-waiter'}">${s.role}</span></div><div class="staff-info">${s.phone||'—'}</div><div class="staff-info">${s.shift||'—'}</div><div class="mc-acts" style="margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="openEditS(${s.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="delStaff(${s.id})">Remove</button></div></div>`).join('');}
 function openAddStaff(){editSId=null;document.getElementById('m-staff-title').textContent='Add Staff Member';['st-name','st-phone'].forEach(id=>document.getElementById(id).value='');document.getElementById('st-role').value='';document.getElementById('st-id').value='';openM('m-staff');}
 function openEditS(id){const s=staff.find(x=>x.id===id);if(!s)return;editSId=id;document.getElementById('m-staff-title').textContent='Edit Staff';document.getElementById('st-name').value=s.name;document.getElementById('st-phone').value=s.phone||'';document.getElementById('st-role').value=s.role;document.getElementById('st-shift').value=s.shift||'Full Day';document.getElementById('st-id').value=id;openM('m-staff');}
@@ -1916,7 +1978,7 @@ function showSampleBill(){
 }
 function billTable(tableNum){
   // Get ALL orders for this table
-  const tableOrders = orders.filter(o => o.table == tableNum);
+  const tableOrders = orders.filter(o => String(o.table) === String(tableNum));
   if(!tableOrders.length){ notify('No Orders','Is table ka koi order nahi','error'); return; }
   
   const gstRate=getGSTRate(); const scRate=getSCRate();
@@ -1982,26 +2044,8 @@ function clearTableConfirm(){
 async function clearTable(){
   if(!clearingTable) return;
   closeM('m-clear-table');
-  
-  // Remove from local orders array
-  const tableOrders = orders.filter(o => o.table == clearingTable);
-  orders = orders.filter(o => o.table != clearingTable);
-  
-  // Mark orders as 'cleared' in Supabase (keep record but mark done)
-  if(R?.id !== 'demo'){
-    try{
-      for(const o of tableOrders){
-        if(o.db_id){
-          await sb.from('orders').update({status:'cleared'}).eq('id', o.db_id);
-        }
-      }
-    }catch(e){ console.log('Clear table error:', e); }
-  }
-  
-  updateBadges();
-  renderOrders();
+  closeTableSession(clearingTable);
   renderBilling();
-  notify('Table Cleared', 'Table '+clearingTable+' saaf ho gaya! ✅');
   clearingTable = null;
 }
 function renderRequests(){updateBadges();const el=document.getElementById('req-list');if(!calls.length){el.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:var(--r)"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">All Clear</div><div>No pending requests</div></div>`;return;}el.innerHTML=calls.map((c,i)=>`<div class="req-item"><div><div class="req-tbl">Table ${c.table}</div><div class="req-type">${c.type}</div><div class="req-time">${c.time}</div></div><button class="btn btn-ghost btn-sm" onclick="dimReq(${i})">Done</button></div>`).join('');}
@@ -2013,19 +2057,22 @@ function dimReq(i){
 }
 function renderAnalytics(){
   const gstRate=getGSTRate(); const scRate=getSCRate();
+  
+  // Use all orders including cleared ones for analytics
+  const allOrders = [...orders, ...clearedOrders];
 
   // ---- Summary stats ----
-  const totalRev = orders.reduce((s,o)=>s+o.total,0);
-  const avgOrder = orders.length ? Math.round(totalRev/orders.length) : 0;
+  const totalRev = allOrders.reduce((s,o)=>s+o.total,0);
+  const avgOrder = allOrders.length ? Math.round(totalRev/allOrders.length) : 0;
   const avgRating = feedbacks.length ? (feedbacks.reduce((s,f)=>s+(f.food+f.svc)/2,0)/feedbacks.length).toFixed(1) : '—';
   document.getElementById('ana-week-rev').textContent = 'Rs '+totalRev.toLocaleString('en-IN');
-  document.getElementById('ana-total-orders').textContent = orders.length;
+  document.getElementById('ana-total-orders').textContent = allOrders.length;
   document.getElementById('ana-avg-order').textContent = 'Rs '+avgOrder;
   document.getElementById('ana-avg-rating').textContent = avgRating;
 
   // ---- Top selling items ----
   const itemCount={};
-  orders.forEach(o=>o.items.forEach(i=>{itemCount[i.name]=(itemCount[i.name]||0)+i.qty;}));
+  allOrders.forEach(o=>o.items.forEach(i=>{itemCount[i.name]=(itemCount[i.name]||0)+i.qty;}));
   const topItems=Object.entries(itemCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const maxI=topItems[0]?topItems[0][1]:1;
   if(topItems.length){
@@ -2036,7 +2083,7 @@ function renderAnalytics(){
 
   // ---- Category performance ----
   const catRev={};
-  orders.forEach(o=>o.items.forEach(i=>{
+  allOrders.forEach(o=>o.items.forEach(i=>{
     const menuItem=menu.find(m=>m.name===i.name);
     const cat=menuItem?menuItem.category:'Other';
     catRev[cat]=(catRev[cat]||0)+i.price*i.qty;
@@ -2071,7 +2118,7 @@ function renderAnalytics(){
 
   // ---- Peak hours ----
   const hrCount={};
-  orders.forEach(o=>{
+  allOrders.forEach(o=>{
     const hr=o.time?parseInt(o.time.split(':')[0]):12;
     const label=hr<12?`${hr}am`:(hr===12?'12pm':`${hr-12}pm`);
     hrCount[label]=(hrCount[label]||0)+1;
@@ -2087,30 +2134,24 @@ function renderAnalytics(){
 
 function renderBilling(){
   const gstRate=getGSTRate(); const scRate=getSCRate();
-  const today=new Date().toLocaleDateString('en-IN');
+  const allOrders = [...orders, ...clearedOrders];
   
-  // Today's orders
-  const todayOrders=orders.filter(o=>{
-    if(!o.time) return false;
-    return true; // all loaded orders include today's
-  });
-  const todayRev=orders.reduce((s,o)=>s+o.total,0);
-  const weekRev=orders.reduce((s,o)=>s+o.total,0);
-  const avg=orders.length?Math.round(weekRev/orders.length):0;
+  const totalRev=allOrders.reduce((s,o)=>s+o.total,0);
+  const avg=allOrders.length?Math.round(totalRev/allOrders.length):0;
 
-  document.getElementById('bill-today-rev').textContent='Rs '+todayRev.toLocaleString('en-IN');
-  document.getElementById('bill-today-count').textContent=orders.length+' orders';
-  document.getElementById('bill-week-rev').textContent='Rs '+weekRev.toLocaleString('en-IN');
-  document.getElementById('bill-week-count').textContent=orders.length+' orders is hafte';
+  document.getElementById('bill-today-rev').textContent='Rs '+totalRev.toLocaleString('en-IN');
+  document.getElementById('bill-today-count').textContent=orders.length+' active orders';
+  document.getElementById('bill-week-rev').textContent='Rs '+totalRev.toLocaleString('en-IN');
+  document.getElementById('bill-week-count').textContent=allOrders.length+' total orders';
   document.getElementById('bill-avg').textContent='Rs '+avg;
 
-  // Invoice table
+  // Invoice table - show all including cleared
   const tbody=document.getElementById('billing-table-body');
-  if(!orders.length){
+  if(!allOrders.length){
     tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Koi orders nahi abhi</td></tr>';
     return;
   }
-  tbody.innerHTML=orders.map((o,idx)=>{
+  tbody.innerHTML=allOrders.map((o,idx)=>{
     const sub=o.total;
     const gst=Math.round(sub*gstRate/100);
     const sc=Math.round(sub*scRate/100);
@@ -2223,6 +2264,11 @@ async function placeOrder(){
   const time=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   const orderObj={id:oCount,table:curTable,items,total,status:'pending',time};
   orders.push(orderObj);
+  // Mark table as occupied
+  if(!tableSessions[curTable]){
+    tableSessions[curTable]={startTime:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),orders:[]};
+  }
+  tableSessions[curTable].orders.push(oCount);
   
   let dbOrderId = null;
   try{

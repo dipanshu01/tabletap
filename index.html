@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TableTap — Smart Restaurant Management</title>
+<title>MenuZy — Smart Restaurant Management</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <!-- Category Management Modal -->
@@ -684,8 +684,8 @@ textarea.inp { resize: vertical; min-height: 100px; }
 <div class="screen active" id="s-landing">
   <nav class="land-nav">
     <div class="logo">
-      <div class="logo-mark"><span>T</span></div>
-      <div class="logo-name">Table<em>Tap</em></div>
+      <div class="logo-mark"><span>M</span></div>
+      <div class="logo-name">MenuZy</div>
     </div>
     <div class="nav-cta">
       <button class="btn btn-outline btn-sm" onclick="showScreen('s-login')">Login</button>
@@ -786,8 +786,8 @@ textarea.inp { resize: vertical; min-height: 100px; }
   </div>
 
   <footer class="land-footer">
-    <div class="footer-logo">Table<em>Tap</em></div>
-    <div class="footer-copy">2024 TableTap. All rights reserved.</div>
+    <div class="footer-logo">MenuZy</div>
+    <div class="footer-copy">2024 MenuZy. All rights reserved.</div>
     <div class="footer-links"><span>Privacy</span><span>Terms</span><span>Support</span></div>
   </footer>
 </div>
@@ -797,7 +797,7 @@ textarea.inp { resize: vertical; min-height: 100px; }
 ===================================================== -->
 <div class="screen" id="s-signup">
   <div class="auth-left">
-    <div class="auth-logo"><div class="auth-logo-mark"><span>T</span></div><div class="auth-logo-name">TableTap</div></div>
+    <div class="auth-logo"><div class="auth-logo-mark"><span>M</span></div><div class="auth-logo-name">MenuZy</div></div>
     <div class="auth-headline">Aapka Restaurant,<br><em>Smarter</em></div>
     <p class="auth-desc">14 din bilkul free — koi credit card nahi chahiye. Signup karo aur apne restaurant ko digital banao aaj hi.</p>
     <div class="auth-perks">
@@ -825,7 +825,7 @@ textarea.inp { resize: vertical; min-height: 100px; }
 ===================================================== -->
 <div class="screen" id="s-login">
   <div class="auth-left">
-    <div class="auth-logo"><div class="auth-logo-mark"><span>T</span></div><div class="auth-logo-name">TableTap</div></div>
+    <div class="auth-logo"><div class="auth-logo-mark"><span>M</span></div><div class="auth-logo-name">MenuZy</div></div>
     <div class="auth-headline">Welcome<br><em>Back</em></div>
     <p class="auth-desc">Apne restaurant ka dashboard access karo. Menu manage karo, orders dekho, billing karo — sab ek jagah.</p>
     <div class="auth-perks">
@@ -839,7 +839,7 @@ textarea.inp { resize: vertical; min-height: 100px; }
     <div class="inp-group"><label class="inp-label">Email Address</label><input class="inp" id="lo-email" type="email" placeholder="you@restaurant.com"></div>
     <div class="inp-group"><label class="inp-label">Password</label><input class="inp" id="lo-pass" type="password" placeholder="Your password"></div>
     <button class="btn btn-primary" style="width:100%;padding:14px;font-size:14px" onclick="doLogin()" id="lo-btn">Login to Dashboard</button>
-    <div class="auth-switch">New to TableTap? <button onclick="showScreen('s-signup')">Start free trial</button></div>
+    <div class="auth-switch">New to MenuZy? <button onclick="showScreen('s-signup')">Start free trial</button></div>
     <div class="auth-back" onclick="showScreen('s-landing')">← Back to home</div>
   </div>
 </div>
@@ -850,7 +850,7 @@ textarea.inp { resize: vertical; min-height: 100px; }
 <div class="screen" id="s-dash">
   <div class="sidebar">
     <div class="sb-brand">
-      <div class="sb-logo"><div class="sb-logo-mark"><span>T</span></div><div class="sb-logo-name">Table<em>Tap</em></div></div>
+      <div class="sb-logo"><div class="sb-logo-mark"><span>M</span></div><div class="sb-logo-name">MenuZy</div></div>
       <div class="sb-rname" id="sb-rname">Restaurant</div>
       <div class="sb-email" id="sb-email">email</div>
       <div class="sb-plan">Free Trial</div>
@@ -1210,9 +1210,9 @@ textarea.inp { resize: vertical; min-height: 100px; }
       </div>
       
       <div style="padding:20px">
-        <!-- Step 1 -->
+        <!-- Step 1: Order Received -->
         <div style="display:flex;align-items:center;gap:14px;padding-bottom:16px;position:relative">
-          <div style="position:absolute;left:17px;top:36px;width:2px;height:calc(100% - 16px);background:var(--border)" id="line1"></div>
+          <div style="position:absolute;left:17px;top:36px;width:2px;height:calc(100% - 16px);background:var(--border)"></div>
           <div id="tp-dot1" style="width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;color:white;font-size:15px;flex-shrink:0;z-index:1">✓</div>
           <div style="flex:1">
             <div style="font-weight:600;font-size:14px">Order Received</div>
@@ -1221,25 +1221,36 @@ textarea.inp { resize: vertical; min-height: 100px; }
           <div id="tp-time1" style="font-size:11px;color:var(--muted);white-space:nowrap"></div>
         </div>
 
-        <!-- Step 2 -->
+        <!-- Step 2: Preparing -->
         <div style="display:flex;align-items:center;gap:14px;padding-bottom:16px;position:relative;opacity:0.4" id="tp-step2">
-          <div style="position:absolute;left:17px;top:36px;width:2px;height:calc(100% - 16px);background:var(--border)" id="line2"></div>
-          <div id="tp-dot2" style="width:36px;height:36px;border-radius:50%;background:var(--bg2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;z-index:1">🍳</div>
+          <div style="position:absolute;left:17px;top:36px;width:2px;height:calc(100% - 16px);background:var(--border)"></div>
+          <div id="tp-dot2" style="width:36px;height:36px;border-radius:50%;background:var(--bg2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;z-index:1">🫕</div>
           <div style="flex:1">
             <div style="font-weight:600;font-size:14px">Preparing</div>
-            <div style="font-size:12px;color:var(--muted)">Chef khana bana raha hai</div>
+            <div style="font-size:12px;color:var(--muted)">Chef khana bana raha hai 🧑‍🍳</div>
           </div>
           <div id="tp-time2" style="font-size:11px;color:var(--muted);white-space:nowrap"></div>
         </div>
 
-        <!-- Step 3 -->
-        <div style="display:flex;align-items:center;gap:14px;opacity:0.4" id="tp-step3">
+        <!-- Step 3: On The Way -->
+        <div style="display:flex;align-items:center;gap:14px;padding-bottom:16px;position:relative;opacity:0.4" id="tp-step3">
+          <div style="position:absolute;left:17px;top:36px;width:2px;height:calc(100% - 16px);background:var(--border)"></div>
           <div id="tp-dot3" style="width:36px;height:36px;border-radius:50%;background:var(--bg2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;z-index:1">🛎️</div>
           <div style="flex:1">
             <div id="tp-step3-title" style="font-weight:600;font-size:14px">On The Way</div>
             <div id="tp-step3-sub" style="font-size:12px;color:var(--muted)">Waiter table pe leke aa raha hai</div>
           </div>
           <div id="tp-time3" style="font-size:11px;color:var(--muted);white-space:nowrap"></div>
+        </div>
+
+        <!-- Step 4: Delivered -->
+        <div style="display:flex;align-items:center;gap:14px;opacity:0.4" id="tp-step4">
+          <div id="tp-dot4" style="width:36px;height:36px;border-radius:50%;background:var(--bg2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;z-index:1">🎉</div>
+          <div style="flex:1">
+            <div id="tp-step4-title" style="font-weight:600;font-size:14px">Delivered</div>
+            <div id="tp-step4-sub" style="font-size:12px;color:var(--muted)">Aapka khana aa gaya!</div>
+          </div>
+          <div id="tp-time4" style="font-size:11px;color:var(--muted);white-space:nowrap"></div>
         </div>
       </div>
     </div>
@@ -1408,7 +1419,7 @@ async function doSignup(){
     localStorage.setItem('tt_pass_'+email,btoa(pass));
     localStorage.setItem('tt_s',JSON.stringify({id:data.id,email,name:rname}));
     R=data;totalTables=10;menu=[];
-    notify('Account Created!','Welcome to TableTap');
+    notify('Account Created!','Welcome to MenuZy');
     showS('s-dash');initDash();
   }catch(e){notify('Error',e.message||'Something went wrong','error');}
   finally{btn.innerHTML='Create Account';btn.disabled=false;}
@@ -1438,7 +1449,7 @@ function demoLogin(){
   R={id:'demo',name:'The Grand Kitchen',owner_name:'Demo Owner',email:'demo@tabletap.in',plan:'trial',tables:12};
   menu=[{id:1,name:'Seekh Kebab',description:'Juicy minced lamb kebab with mint chutney',price:280,emoji:'🥩',category:'Starters',is_veg:false},{id:2,name:'Paneer Tikka',description:'Smoky tandoor paneer with special spices',price:220,emoji:'🧀',category:'Starters',is_veg:true},{id:3,name:'Butter Chicken',description:'Rich creamy tomato gravy with tender chicken',price:380,emoji:'🍛',category:'Main Course',is_veg:false},{id:4,name:'Dal Makhani',description:'Slow cooked black dal with cream and butter',price:260,emoji:'🫘',category:'Main Course',is_veg:true},{id:5,name:'Dum Biryani',description:'Aromatic slow cooked dum biryani',price:420,emoji:'🍚',category:'Biryani & Rice',is_veg:false},{id:6,name:'Butter Naan',description:'Soft tandoor bread with real butter',price:60,emoji:'🫓',category:'Breads',is_veg:true},{id:7,name:'Gulab Jamun',description:'Soft milk dumplings in rose syrup',price:120,emoji:'🍮',category:'Desserts',is_veg:true},{id:8,name:'Mango Lassi',description:'Thick creamy mango yogurt drink',price:120,emoji:'🥭',category:'Drinks',is_veg:true}];
   staff=[{id:1,name:'Rahul Kumar',role:'Waiter',phone:'9876543210',shift:'Evening (3pm - 11pm)'},{id:2,name:'Chef Suresh',role:'Chef',phone:'9876543211',shift:'Morning (7am - 3pm)'},{id:3,name:'Priya Singh',role:'Manager',phone:'9876543212',shift:'Full Day'}];
-  totalTables=12;notify('Demo Mode','Exploring TableTap dashboard');showS('s-dash');initDash();
+  totalTables=12;notify('Demo Mode','Exploring MenuZy dashboard');showS('s-dash');initDash();
 }
 
 function doLogout(){
@@ -1758,7 +1769,7 @@ function openAddStaff(){editSId=null;document.getElementById('m-staff-title').te
 function openEditS(id){const s=staff.find(x=>x.id===id);if(!s)return;editSId=id;document.getElementById('m-staff-title').textContent='Edit Staff';document.getElementById('st-name').value=s.name;document.getElementById('st-phone').value=s.phone||'';document.getElementById('st-role').value=s.role;document.getElementById('st-shift').value=s.shift||'Full Day';document.getElementById('st-id').value=id;openM('m-staff');}
 function saveStaff(){const name=document.getElementById('st-name').value.trim(),role=document.getElementById('st-role').value,phone=document.getElementById('st-phone').value.trim(),shift=document.getElementById('st-shift').value;if(!name||!role){notify('Error','Name and role required','error');return;}if(editSId){const idx=staff.findIndex(s=>s.id===editSId);staff[idx]={...staff[idx],name,role,phone,shift};notify('Updated',name+' updated');}else{const nid=staff.length>0?Math.max(...staff.map(s=>s.id))+1:1;staff.push({id:nid,name,role,phone,shift});notify('Added',name+' added');}closeM('m-staff');renderStaff();}
 function delStaff(id){const s=staff.find(x=>x.id===id);if(confirm(`Remove ${s.name}?`)){staff=staff.filter(x=>x.id!==id);notify('Removed',s.name);renderStaff();}}
-function renderOrders(filter){filter=filter||'all';updateBadges();['all','pending','prep','ready'].forEach(f=>{const el=document.getElementById(`of-${f}`);if(el){el.style.background=f===filter?'var(--ink)':'var(--bg2)';el.style.color=f===filter?'white':'var(--ink3)';el.style.border=f===filter?'1.5px solid var(--ink)':'1px solid var(--border)';}});const items=filter==='all'?orders:orders.filter(o=>o.status===(filter==='prep'?'preparing':filter));const c=document.getElementById('orders-container');if(!items.length){c.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:var(--r);grid-column:1/-1"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">No Orders</div><div>No orders ${filter==='all'?'yet':'in this status'}</div></div>`;return;}c.innerHTML=items.map(o=>`<div class="order-card ${o.status}"><div class="oc-top"><div><div class="oc-tbl">Table ${o.table}</div><div class="oc-time">#${o.id} — ${o.time}</div></div><span class="tag ${o.status==='pending'?'tag-gold':o.status==='preparing'?'tag-amber':'tag-green'}">${o.status}</span></div><div class="oc-items">${o.items.map(i=>`<div class="oc-row"><span>${i.name} x${i.qty}</span><span style="font-weight:600">Rs ${i.price*i.qty}</span></div>`).join('')}</div><div class="oc-total"><span>Total</span><span>Rs ${o.total}</span></div><div class="oc-acts">${o.status==='pending'?`<button class="btn btn-outline btn-sm" onclick="updOrder(${o.id},'preparing')">Start Cooking</button>`:''} ${o.status==='preparing'?`<button class="btn btn-primary btn-sm" onclick="updOrder(${o.id},'ready')">Mark Ready</button>`:''}<button class="btn btn-ghost btn-sm" onclick="billOrder(${o.id})">Bill</button></div></div>`).join('');}
+function renderOrders(filter){filter=filter||'all';updateBadges();['all','pending','prep','ready'].forEach(f=>{const el=document.getElementById(`of-${f}`);if(el){el.style.background=f===filter?'var(--ink)':'var(--bg2)';el.style.color=f===filter?'white':'var(--ink3)';el.style.border=f===filter?'1.5px solid var(--ink)':'1px solid var(--border)';}});const items=filter==='all'?orders:orders.filter(o=>o.status===(filter==='prep'?'preparing':filter));const c=document.getElementById('orders-container');if(!items.length){c.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:var(--r);grid-column:1/-1"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">No Orders</div><div>No orders ${filter==='all'?'yet':'in this status'}</div></div>`;return;}c.innerHTML=items.map(o=>`<div class="order-card ${o.status}"><div class="oc-top"><div><div class="oc-tbl">Table ${o.table}</div><div class="oc-time">#${o.id} — ${o.time}</div></div><span class="tag ${o.status==='pending'?'tag-gold':o.status==='preparing'?'tag-amber':'tag-green'}">${o.status}</span></div><div class="oc-items">${o.items.map(i=>`<div class="oc-row"><span>${i.name} x${i.qty}</span><span style="font-weight:600">Rs ${i.price*i.qty}</span></div>`).join('')}</div><div class="oc-total"><span>Total</span><span>Rs ${o.total}</span></div><div class="oc-acts">${o.status==='pending'?`<button class="btn btn-outline btn-sm" onclick="updOrder(${o.id},'preparing')">Start Cooking</button>`:''} ${o.status==='preparing'?`<button class="btn btn-primary btn-sm" onclick="updOrder(${o.id},'ready')">On The Way</button>`:''} ${o.status==='ready'?`<button class="btn btn-primary btn-sm" onclick="updOrder(${o.id},'delivered')">Mark Delivered</button>`:''}<button class="btn btn-ghost btn-sm" onclick="billOrder(${o.id})">Bill</button></div></div>`).join('');}
 function filterOrders(f){renderOrders(f);}
 async function updOrder(id,status){
   const idx=orders.findIndex(o=>o.id===id);
@@ -1995,6 +2006,11 @@ function setupTrackPage(items, total, orderNum, tableNum){
   document.getElementById('tp-time3').textContent='';
   document.getElementById('tp-step3-title').textContent='On The Way';
   document.getElementById('tp-step3-sub').textContent='Waiter table pe leke aa raha hai';
+  document.getElementById('tp-step4').style.opacity='0.4';
+  document.getElementById('tp-dot4').style.background='var(--bg2)';
+  document.getElementById('tp-dot4').style.border='2px solid var(--border)';
+  document.getElementById('tp-time4').textContent='';
+  document.getElementById('tp-step4-title').textContent='Delivered';
   
   document.getElementById('tp-timer-card').style.display='block';
   document.getElementById('tp-timer').textContent='~15 min';
@@ -2014,7 +2030,7 @@ function startTracking(dbId, localId){
       const{data}=await sb.from('orders').select('status,updated_at').eq('id',dbId).single();
       if(!data) return;
       updateTrackingUI(data.status);
-      if(data.status==='ready') clearInterval(trackingInterval);
+      if(data.status==='delivered') clearInterval(trackingInterval);
     }catch(e){}
   }, 5000); // Check every 5 seconds
 }
@@ -2046,16 +2062,48 @@ function updateTrackingUI(status){
   }
   
   if(status==='ready'){
+    // Step 2 done
+    const s2=document.getElementById('tp-step2');
+    const d2=document.getElementById('tp-dot2');
+    if(s2)s2.style.opacity='1';
+    if(d2){d2.style.background='var(--green)';d2.style.border='none';d2.textContent='✓';d2.classList.remove('track-pulse');}
+    // Step 3: On The Way - active
     const s3=document.getElementById('tp-step3');
     const d3=document.getElementById('tp-dot3');
     const t3=document.getElementById('tp-time3');
     const title3=document.getElementById('tp-step3-title');
     const sub3=document.getElementById('tp-step3-sub');
     if(s3)s3.style.opacity='1';
-    if(d3){d3.style.background='var(--green)';d3.style.border='none';d3.textContent='🎉';d3.classList.add('track-pulse');}
-    if(t3)t3.textContent=now;
-    if(title3)title3.textContent='Delivered! 🎉';
-    if(sub3)sub3.textContent='Khana table pe aa gaya!';
+    if(d3){d3.style.background='#f59e0b';d3.style.border='none';d3.textContent='🛎️';d3.classList.add('track-pulse');}
+    if(t3&&!t3.textContent)t3.textContent=now;
+    if(title3)title3.textContent='On The Way 🛎️';
+    if(sub3)sub3.textContent='Waiter leke aa raha hai!';
+    const ms=document.getElementById('tp-main-status');
+    const timer=document.getElementById('tp-timer');
+    const timerSub=document.getElementById('tp-timer-sub');
+    if(ms)ms.textContent='On The Way 🛎️';
+    if(timer)timer.textContent='~2 min';
+    if(timerSub)timerSub.textContent='Bas aa hi gaya! 🏃';
+  }
+  
+  if(status==='delivered'){
+    // All steps done
+    ['tp-step2','tp-step3','tp-step4'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el)el.style.opacity='1';
+    });
+    ['tp-dot2','tp-dot3'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){el.style.background='var(--green)';el.style.border='none';el.textContent='✓';el.classList.remove('track-pulse');}
+    });
+    const d4=document.getElementById('tp-dot4');
+    const t4=document.getElementById('tp-time4');
+    const title4=document.getElementById('tp-step4-title');
+    const sub4=document.getElementById('tp-step4-sub');
+    if(d4){d4.style.background='var(--green)';d4.style.border='none';d4.textContent='🎉';d4.classList.add('track-pulse');}
+    if(t4)t4.textContent=now;
+    if(title4)title4.textContent='Delivered! 🎉';
+    if(sub4)sub4.textContent='Enjoy your meal!';
     const timerCard=document.getElementById('tp-timer-card');
     const delivered=document.getElementById('tp-delivered');
     const ms=document.getElementById('tp-main-status');

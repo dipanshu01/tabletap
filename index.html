@@ -454,39 +454,114 @@ textarea.inp { resize: vertical; min-height: 100px; }
 /* =====================================================
    CUSTOMER MENU
 ===================================================== */
-#s-menu.active { display: block; background: var(--bg); }
+#s-menu.active { display: block; background: var(--mt-bg, var(--bg)); }
+
+/* ===== MENU THEMES ===== */
+/* Theme variables applied on #s-menu */
+#s-menu.theme-classic { --mt-bg:#f8f7f4; --mt-header:#1a1a1a; --mt-header-text:#ffffff; --mt-accent:#c9a84c; --mt-card:#ffffff; --mt-card-border:#e8e4dc; --mt-pill-active:#1a1a1a; --mt-pill-text:#1a1a1a; --mt-btn:#1a1a1a; --mt-btn-text:#ffffff; --mt-name-size:22px; }
+#s-menu.theme-dark { --mt-bg:#0f0f0f; --mt-header:#1a1a1a; --mt-header-text:#ffffff; --mt-accent:#f59e0b; --mt-card:#1e1e1e; --mt-card-border:#2a2a2a; --mt-pill-active:#f59e0b; --mt-pill-text:#ffffff; --mt-btn:#f59e0b; --mt-btn-text:#000000; --mt-name-size:22px; }
+#s-menu.theme-royal { --mt-bg:#1a0a2e; --mt-header:#2d1b69; --mt-header-text:#e9d5ff; --mt-accent:#a855f7; --mt-card:#241544; --mt-card-border:#3b2070; --mt-pill-active:#a855f7; --mt-pill-text:#e9d5ff; --mt-btn:#a855f7; --mt-btn-text:#ffffff; --mt-name-size:24px; }
+#s-menu.theme-nature { --mt-bg:#f0fdf4; --mt-header:#14532d; --mt-header-text:#ffffff; --mt-accent:#16a34a; --mt-card:#ffffff; --mt-card-border:#bbf7d0; --mt-pill-active:#16a34a; --mt-pill-text:#14532d; --mt-btn:#16a34a; --mt-btn-text:#ffffff; --mt-name-size:22px; }
+#s-menu.theme-sunset { --mt-bg:#fff7ed; --mt-header:#9a3412; --mt-header-text:#ffffff; --mt-accent:#ea580c; --mt-card:#ffffff; --mt-card-border:#fed7aa; --mt-pill-active:#ea580c; --mt-pill-text:#9a3412; --mt-btn:#ea580c; --mt-btn-text:#ffffff; --mt-name-size:22px; }
 
 .menu-nav {
-  background: var(--white); border-bottom: 1px solid var(--border);
-  padding: 0 20px; height: 60px;
+  background: var(--mt-header, var(--white));
+  border-bottom: 1px solid var(--mt-card-border, var(--border));
+  padding: 0 20px; height: 70px;
   display: flex; align-items: center; justify-content: space-between;
   position: sticky; top: 0; z-index: 100;
 }
-.menu-rname { font-family: var(--fd); font-size: 18px; }
-.table-tag { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); background: var(--gold-light); padding: 6px 14px; border-radius: 2px; }
-.cat-strip { display: flex; overflow-x: auto; background: var(--white); border-bottom: 1px solid var(--border); padding: 0 16px; scrollbar-width: none; }
+.menu-rname { 
+  font-family: var(--fd); 
+  font-size: var(--mt-name-size, 18px);
+  color: var(--mt-header-text, var(--ink));
+  letter-spacing: -0.02em;
+}
+.menu-sub { font-size: 11px; color: var(--mt-header-text, var(--muted)); opacity: 0.6; margin-top:2px; }
+.table-tag { 
+  font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; 
+  color: var(--mt-header, var(--ink));
+  background: var(--mt-accent, var(--gold)); 
+  padding: 7px 14px; border-radius: 4px;
+}
+.cat-strip { 
+  display: flex; overflow-x: auto; 
+  background: var(--mt-card, var(--white)); 
+  border-bottom: 2px solid var(--mt-card-border, var(--border)); 
+  padding: 0 16px; scrollbar-width: none; 
+  gap: 4px;
+}
 .cat-strip::-webkit-scrollbar { display: none; }
-.cat-pill { padding: 14px 16px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all .2s; background: none; border-left: none; border-right: none; border-top: none; font-family: var(--fb); }
-.cat-pill.active, .cat-pill:hover { color: var(--ink); border-bottom-color: var(--gold); }
-.menu-items { padding: 16px; max-width: 700px; margin: 0 auto; }
-.item-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); display: flex; overflow: hidden; margin-bottom: 8px; transition: all .2s; }
-.item-card:hover { border-color: var(--border2); box-shadow: var(--shadow-sm); }
-.ic-thumb { width: 90px; height: 80px; flex-shrink: 0; background: var(--bg2); display: flex; align-items: center; justify-content: center; font-size: 34px; overflow: hidden; }
+.cat-pill { 
+  padding: 14px 18px; font-size: 12px; font-weight: 600; 
+  letter-spacing: 0.06em; text-transform: uppercase; 
+  color: var(--mt-pill-text, var(--muted)); opacity: 0.5;
+  cursor: pointer; border-bottom: 3px solid transparent; 
+  white-space: nowrap; transition: all .2s; 
+  background: none; border-left: none; border-right: none; border-top: none; 
+  font-family: var(--fb);
+}
+.cat-pill.active { 
+  color: var(--mt-pill-active, var(--ink)); 
+  border-bottom-color: var(--mt-accent, var(--gold));
+  opacity: 1;
+}
+.menu-items { padding: 16px; max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.item-card { 
+  background: var(--mt-card, var(--white)); 
+  border: 1px solid var(--mt-card-border, var(--border)); 
+  border-radius: 12px; 
+  display: flex; overflow: hidden; 
+  transition: all .2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.item-card:active { transform: scale(0.98); }
+.ic-thumb { 
+  width: 100px; height: 100px; flex-shrink: 0; 
+  background: var(--mt-card-border, var(--bg2)); 
+  display: flex; align-items: center; justify-content: center; 
+  font-size: 40px; overflow: hidden; 
+}
 .ic-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.ic-body { flex: 1; padding: 12px 14px; }
-.ic-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
-.ic-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
-.ic-price { font-family: var(--fd); font-size: 16px; color: var(--ink); margin-top: 6px; }
-.ic-right { padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.ic-body { flex: 1; padding: 14px 14px; display: flex; flex-direction: column; justify-content: center; }
+.ic-name { 
+  font-size: 15px; font-weight: 700; margin-bottom: 3px;
+  color: var(--mt-pill-text, var(--ink));
+}
+.ic-desc { font-size: 12px; color: var(--mt-pill-text, var(--muted)); opacity: 0.6; line-height: 1.4; }
+.ic-price { 
+  font-family: var(--fd); font-size: 17px; 
+  color: var(--mt-accent, var(--gold)); 
+  margin-top: 6px; font-weight: 700;
+}
+.ic-right { padding: 14px 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
 .veg-dot { width: 14px; height: 14px; border: 2px solid; border-radius: 2px; }
-.veg-dot.v { border-color: var(--green); }
-.veg-dot.nv { border-color: var(--red); }
-.add-btn { width: 32px; height: 32px; background: var(--ink); color: white; border: none; font-size: 18px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; border-radius: 2px; }
-.add-btn:hover { background: var(--ink2); transform: scale(1.08); }
-.cust-action-bar { display: flex; background: var(--white); border-top: 1px solid var(--border); position: sticky; bottom: 52px; z-index: 50; }
-.cust-btn { flex: 1; padding: 14px; background: none; border: none; border-right: 1px solid var(--border); font-family: var(--fb); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink3); cursor: pointer; transition: all .2s; }
+.veg-dot.v { border-color: #16a34a; background: #dcfce7; }
+.veg-dot.nv { border-color: #dc2626; background: #fee2e2; }
+.add-btn { 
+  width: 36px; height: 36px; 
+  background: var(--mt-btn, var(--ink)); 
+  color: var(--mt-btn-text, white); 
+  border: none; font-size: 20px; font-weight: 700; 
+  cursor: pointer; display: flex; align-items: center; justify-content: center; 
+  transition: all .2s; border-radius: 8px; 
+}
+.add-btn:active { transform: scale(0.9); }
+.cust-action-bar { 
+  display: flex; 
+  background: var(--mt-card, var(--white)); 
+  border-top: 1px solid var(--mt-card-border, var(--border)); 
+  position: sticky; bottom: 0; z-index: 50; 
+}
+.cust-btn { 
+  flex: 1; padding: 16px; background: none; border: none; 
+  border-right: 1px solid var(--mt-card-border, var(--border)); 
+  font-family: var(--fb); font-size: 11px; font-weight: 600; 
+  letter-spacing: 0.08em; text-transform: uppercase; 
+  color: var(--mt-pill-text, var(--ink3)); 
+  cursor: pointer; transition: all .2s; 
+}
 .cust-btn:last-child { border-right: none; }
-.cust-btn:hover { background: var(--bg); color: var(--ink); }
 
 /* Cart float */
 .cart-float { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%) translateY(120px); background: var(--ink); color: white; padding: 14px 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: transform .4s cubic-bezier(.175,.885,.32,1.275); z-index: 200; min-width: 280px; box-shadow: var(--shadow-lg); border-radius: 4px; }
@@ -541,6 +616,7 @@ textarea.inp { resize: vertical; min-height: 100px; }
   .land-nav { padding: 0 20px; }
   .land-hero { grid-template-columns: 1fr; padding: 48px 20px; gap: 0; }
   .hero-right { display: none; }
+  .land-hero { position: relative; }
   .feat-strip, .land-pricing { padding-left: 20px; padding-right: 20px; }
   .feat-grid { grid-template-columns: 1fr 1fr; }
   .land-footer { padding: 32px 20px; }
@@ -696,27 +772,37 @@ textarea.inp { resize: vertical; min-height: 100px; }
     </div>
   </nav>
 
+  <!-- HERO -->
   <div class="land-hero">
     <div>
-      <div class="hero-kicker"><div class="hero-kicker-dot"></div><div class="hero-kicker-text">Restaurant Management Platform</div></div>
-      <h1 class="hero-title">Apne Restaurant Ko<br><em>Smarter</em> Banao</h1>
-      <span class="gold-accent" style="margin-bottom:20px"></span>
-      <p class="hero-desc">QR menu, live ordering, kitchen system, GST billing, staff management — sab kuch ek jagah. Chhote dhabe se lekar fine dining tak, sab ke liye.</p>
-      <div class="hero-actions">
-        <button class="btn btn-primary" style="padding:14px 32px" onclick="showScreen('s-signup')">Start 14-Day Free Trial</button>
-        <button class="btn btn-outline" style="padding:14px 32px" onclick="demoLogin()">View Live Demo</button>
+      <div class="hero-kicker">
+        <div class="hero-kicker-dot"></div>
+        <div class="hero-kicker-text">🇮🇳 India ka #1 Restaurant Management Platform</div>
       </div>
-      <div class="hero-stats">
+      <h1 class="hero-title">QR Scan Karo,<br><em>Order Aa Gaya!</em></h1>
+      <span class="gold-accent" style="margin-bottom:20px"></span>
+      <p class="hero-desc">Koi app download nahi. Koi waiter confusion nahi. Customer table pe baithta hai, QR scan karta hai, order deta hai — seedha kitchen mein jaata hai!</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" style="padding:16px 36px;font-size:15px" onclick="showScreen('s-signup')">🚀 14 Din Free Try Karo</button>
+        <button class="btn btn-outline" style="padding:16px 32px" onclick="demoLogin()">Live Demo Dekho</button>
+      </div>
+      <!-- Trust badges -->
+      <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> No credit card required</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> 5 minute setup</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> Cancel anytime</div>
+      </div>
+      <div class="hero-stats" style="margin-top:32px">
         <div><div class="h-stat-num">500+</div><div class="h-stat-lbl">Restaurants</div></div>
         <div><div class="h-stat-num">50K+</div><div class="h-stat-lbl">Daily Orders</div></div>
-        <div><div class="h-stat-num">4.9/5</div><div class="h-stat-lbl">Avg Rating</div></div>
+        <div><div class="h-stat-num">4.9★</div><div class="h-stat-lbl">Avg Rating</div></div>
       </div>
     </div>
     <div class="hero-right">
       <div class="hero-card">
         <div class="hc-header">
           <div class="hc-header-title">Live Order — Table 7</div>
-          <div class="hc-header-badge">Preparing</div>
+          <div class="hc-header-badge">Preparing 🫕</div>
         </div>
         <div class="hc-body">
           <div class="hc-row"><div><div class="hc-item-name">Butter Chicken</div><div class="hc-item-qty">x2 portions</div></div><div class="hc-item-price">Rs 760</div></div>
@@ -728,6 +814,73 @@ textarea.inp { resize: vertical; min-height: 100px; }
           <div class="hc-total-lbl">Order Total (incl. GST)</div>
           <div class="hc-total-val">Rs 1,575</div>
         </div>
+      </div>
+      <!-- Floating notification -->
+      <div style="position:absolute;bottom:-20px;right:10px;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:10px 14px;box-shadow:0 4px 20px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;min-width:200px">
+        <div style="width:36px;height:36px;border-radius:50%;background:#ecfdf5;display:flex;align-items:center;justify-content:center;font-size:18px">🔔</div>
+        <div>
+          <div style="font-size:12px;font-weight:600">New Order!</div>
+          <div style="font-size:11px;color:var(--muted)">Table 3 — Rs 480</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TESTIMONIALS -->
+  <div style="background:var(--bg);padding:64px 24px">
+    <div style="max-width:1100px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:48px">
+        <div class="label" style="margin-bottom:8px">Testimonials</div>
+        <div class="h2">Restaurant owners ki zubani</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px">
+        
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:28px;position:relative">
+          <div style="font-size:32px;color:var(--gold);font-family:serif;line-height:1;margin-bottom:12px">"</div>
+          <p style="font-size:14px;line-height:1.8;color:var(--ink3);margin-bottom:20px">Pehle waiter ko order likhna padta tha, galti hoti thi. Ab customer khud order karta hai, kitchen mein turant chala jaata hai. Meri staff ki efficiency 2x ho gayi!</p>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:42px;height:42px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px">R</div>
+            <div>
+              <div style="font-weight:600;font-size:14px">Ramesh Sharma</div>
+              <div style="font-size:12px;color:var(--muted)">Sharma Dhaba, Jaipur</div>
+            </div>
+            <div style="margin-left:auto;color:var(--gold);font-size:13px">★★★★★</div>
+          </div>
+        </div>
+
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:28px;position:relative;border-top:3px solid var(--gold)">
+          <div style="font-size:32px;color:var(--gold);font-family:serif;line-height:1;margin-bottom:12px">"</div>
+          <p style="font-size:14px;line-height:1.8;color:var(--ink3);margin-bottom:20px">GST billing automatic ho gayi, billing mein jo 30 minute lagte the ab 2 minute mein ho jaata hai. MenuZy ne mera bahut time bachaya. Highly recommended!</p>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:42px;height:42px;border-radius:50%;background:var(--ink);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px">P</div>
+            <div>
+              <div style="font-weight:600;font-size:14px">Priya Patel</div>
+              <div style="font-size:12px;color:var(--muted)">Patel Family Restaurant, Surat</div>
+            </div>
+            <div style="margin-left:auto;color:var(--gold);font-size:13px">★★★★★</div>
+          </div>
+        </div>
+
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:28px;position:relative">
+          <div style="font-size:32px;color:var(--gold);font-family:serif;line-height:1;margin-bottom:12px">"</div>
+          <p style="font-size:14px;line-height:1.8;color:var(--ink3);margin-bottom:20px">Customers ko bahut pasand aaya QR menu. "Kitna modern hai yeh restaurant!" kehte hain. Mere competitors se alag dikhne laga hoon. Orders bhi 30% badhey hain!</p>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:42px;height:42px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px">A</div>
+            <div>
+              <div style="font-weight:600;font-size:14px">Arjun Mehta</div>
+              <div style="font-size:12px;color:var(--muted)">Mehta's Cafe, Pune</div>
+            </div>
+            <div style="margin-left:auto;color:var(--gold);font-size:13px">★★★★★</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CTA after testimonials -->
+      <div style="text-align:center;margin-top:48px;padding:40px;background:var(--ink);border-radius:var(--r)">
+        <div style="font-family:var(--fd);font-size:28px;color:white;margin-bottom:8px">Aap bhi try karo — bilkul free!</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:24px">14 din ka free trial • Koi card nahi • Cancel anytime</div>
+        <button class="btn btn-primary" style="padding:16px 40px;font-size:15px;background:var(--gold);border-color:var(--gold);color:var(--ink)" onclick="showScreen('s-signup')">Abhi Shuru Karo →</button>
       </div>
     </div>
   </div>
@@ -753,39 +906,49 @@ textarea.inp { resize: vertical; min-height: 100px; }
     <div class="label" style="margin-bottom:8px">Pricing</div>
     <div class="h2" style="margin-bottom:8px">Simple pricing, no surprises</div>
     <p style="font-size:14px;color:var(--muted)">14 din free trial — koi credit card nahi chahiye</p>
-    <div class="pricing-grid">
+    <div class="pricing-grid" style="max-width:700px;margin:40px auto 0;grid-template-columns:1fr 1fr">
+      
       <div class="price-card">
         <div class="price-tier">Starter</div>
         <div class="price-amount">Rs 999 <span class="price-period">/month</span></div>
         <div class="price-trial">14-day free trial included</div>
         <ul class="price-features">
-          <li>1 Restaurant</li><li>Up to 20 Tables</li><li>Unlimited Menu Items</li>
-          <li>QR Code Generator</li><li>Basic Analytics</li><li>Email Support</li>
+          <li>✅ 1 Restaurant</li>
+          <li>✅ Unlimited Tables</li>
+          <li>✅ QR Digital Menu</li>
+          <li>✅ Live Order Tracking</li>
+          <li>✅ GST Billing</li>
+          <li>✅ Waiter Call System</li>
+          <li>✅ Customer Feedback</li>
+          <li>✅ Basic Analytics</li>
+          <li>✅ Food Photos Upload</li>
+          <li>✅ Email Support</li>
         </ul>
-        <button class="btn btn-outline" style="width:100%" onclick="showScreen('s-signup')">Get Started</button>
+        <button class="btn btn-outline" style="width:100%;padding:13px" onclick="showScreen('s-signup')">Free Trial Shuru Karo</button>
       </div>
+
       <div class="price-card featured">
-        <div class="price-badge">Most Popular</div>
+        <div class="price-badge">Best Value</div>
         <div class="price-tier">Professional</div>
         <div class="price-amount">Rs 1,999 <span class="price-period">/month</span></div>
         <div class="price-trial">14-day free trial included</div>
         <ul class="price-features">
-          <li>3 Restaurant Locations</li><li>Up to 50 Tables</li><li>Food Photo Upload</li>
-          <li>Staff Management</li><li>Advanced Analytics</li><li>GST Billing</li><li>Priority Support</li>
+          <li>✅ Sab Starter features</li>
+          <li>✅ Staff Management</li>
+          <li>✅ Advanced Analytics</li>
+          <li>✅ Revenue Reports</li>
+          <li>✅ Peak Hours Tracking</li>
+          <li>✅ Top Items Report</li>
+          <li>✅ Table Session System</li>
+          <li>✅ Priority Support</li>
+          <li>✅ Future updates free</li>
+          <li>✅ WhatsApp support</li>
         </ul>
-        <button class="btn btn-primary" style="width:100%" onclick="showScreen('s-signup')">Get Started</button>
+        <button class="btn btn-primary" style="width:100%;padding:13px" onclick="showScreen('s-signup')">Free Trial Shuru Karo</button>
       </div>
-      <div class="price-card">
-        <div class="price-tier">Enterprise</div>
-        <div class="price-amount">Rs 4,999 <span class="price-period">/month</span></div>
-        <div class="price-trial">14-day free trial included</div>
-        <ul class="price-features">
-          <li>Unlimited Restaurants</li><li>Unlimited Tables</li><li>Custom Branding</li>
-          <li>API Access</li><li>Dedicated Support Manager</li><li>White Label Option</li>
-        </ul>
-        <button class="btn btn-outline" style="width:100%" onclick="showScreen('s-signup')">Contact Sales</button>
-      </div>
+
     </div>
+    <p style="text-align:center;margin-top:24px;font-size:13px;color:var(--muted)">Dono plans mein <strong>sabhi features</strong> hain — sirf support level alag hai 😊</p>
   </div>
 
   <footer class="land-footer">
@@ -1033,10 +1196,34 @@ textarea.inp { resize: vertical; min-height: 100px; }
           </div>
         </div>
         <div id="plans-wrap" style="display:none">
-          <div class="pricing-grid">
-            <div class="price-card"><div class="price-tier">Starter</div><div class="price-amount">Rs 999 <span class="price-period">/mo</span></div><div class="price-trial">14-day free trial</div><ul class="price-features"><li>1 Restaurant</li><li>20 Tables</li><li>All Features</li></ul><button class="btn btn-outline" style="width:100%" onclick="notify('Coming Soon!','Razorpay payment aayega!')">Select</button></div>
-            <div class="price-card featured"><div class="price-badge">Popular</div><div class="price-tier">Professional</div><div class="price-amount">Rs 1,999 <span class="price-period">/mo</span></div><div class="price-trial">14-day free trial</div><ul class="price-features"><li>3 Restaurants</li><li>50 Tables</li><li>Staff Management</li></ul><button class="btn btn-primary" style="width:100%" onclick="notify('Coming Soon!','Razorpay payment aayega!')">Select</button></div>
-            <div class="price-card"><div class="price-tier">Enterprise</div><div class="price-amount">Rs 4,999 <span class="price-period">/mo</span></div><div class="price-trial">14-day free trial</div><ul class="price-features"><li>Unlimited</li><li>Custom Brand</li><li>API Access</li></ul><button class="btn btn-outline" style="width:100%" onclick="notify('Contact Us!','Email karein!')">Contact</button></div>
+          <div class="pricing-grid" style="grid-template-columns:1fr 1fr;max-width:600px">
+            <div class="price-card">
+              <div class="price-tier">Starter</div>
+              <div class="price-amount">Rs 999 <span class="price-period">/mo</span></div>
+              <div class="price-trial">14-day free trial</div>
+              <ul class="price-features">
+                <li>Unlimited Tables</li>
+                <li>QR Menu + Ordering</li>
+                <li>GST Billing</li>
+                <li>Analytics</li>
+                <li>Email Support</li>
+              </ul>
+              <button class="btn btn-outline" style="width:100%" onclick="notify('Coming Soon!','Razorpay payment aayega jaldi!')">Select Plan</button>
+            </div>
+            <div class="price-card featured">
+              <div class="price-badge">Best Value</div>
+              <div class="price-tier">Professional</div>
+              <div class="price-amount">Rs 1,999 <span class="price-period">/mo</span></div>
+              <div class="price-trial">14-day free trial</div>
+              <ul class="price-features">
+                <li>Sab Starter features</li>
+                <li>Staff Management</li>
+                <li>Advanced Analytics</li>
+                <li>Revenue Reports</li>
+                <li>WhatsApp Support</li>
+              </ul>
+              <button class="btn btn-primary" style="width:100%" onclick="notify('Coming Soon!','Razorpay payment aayega jaldi!')">Select Plan</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1045,6 +1232,32 @@ textarea.inp { resize: vertical; min-height: 100px; }
       <div class="d-section" id="tab-settings">
         <div class="d-hdr"><div class="d-title">Settings</div></div>
         <div class="settings-grid">
+          <div class="settings-card">
+            <div class="sc-title">🎨 Menu Theme</div>
+            <div class="sc-sub">Customer menu ka look choose karo</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px" id="theme-grid">
+              <div class="theme-opt" onclick="selectTheme('classic')" id="th-classic" style="border:2px solid var(--ink);border-radius:10px;padding:12px;cursor:pointer;text-align:center;background:#f8f7f4">
+                <div style="width:100%;height:32px;background:#1a1a1a;border-radius:6px;margin-bottom:6px;display:flex;align-items:center;justify-content:center"><span style="color:#c9a84c;font-size:10px;font-weight:700">CLASSIC</span></div>
+                <div style="font-size:11px;font-weight:600;color:#1a1a1a">Classic ✓</div>
+              </div>
+              <div class="theme-opt" onclick="selectTheme('dark')" id="th-dark" style="border:2px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;text-align:center;background:#0f0f0f">
+                <div style="width:100%;height:32px;background:#1e1e1e;border-radius:6px;margin-bottom:6px;display:flex;align-items:center;justify-content:center"><span style="color:#f59e0b;font-size:10px;font-weight:700">DARK</span></div>
+                <div style="font-size:11px;font-weight:600;color:#f59e0b">Dark Mode</div>
+              </div>
+              <div class="theme-opt" onclick="selectTheme('royal')" id="th-royal" style="border:2px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;text-align:center;background:#1a0a2e">
+                <div style="width:100%;height:32px;background:#2d1b69;border-radius:6px;margin-bottom:6px;display:flex;align-items:center;justify-content:center"><span style="color:#a855f7;font-size:10px;font-weight:700">ROYAL</span></div>
+                <div style="font-size:11px;font-weight:600;color:#a855f7">Royal Purple</div>
+              </div>
+              <div class="theme-opt" onclick="selectTheme('nature')" id="th-nature" style="border:2px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;text-align:center;background:#f0fdf4">
+                <div style="width:100%;height:32px;background:#14532d;border-radius:6px;margin-bottom:6px;display:flex;align-items:center;justify-content:center"><span style="color:#4ade80;font-size:10px;font-weight:700">NATURE</span></div>
+                <div style="font-size:11px;font-weight:600;color:#16a34a">Nature Green</div>
+              </div>
+              <div class="theme-opt" onclick="selectTheme('sunset')" id="th-sunset" style="border:2px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;text-align:center;background:#fff7ed;grid-column:1/-1">
+                <div style="width:100%;height:32px;background:#9a3412;border-radius:6px;margin-bottom:6px;display:flex;align-items:center;justify-content:center"><span style="color:#fdba74;font-size:10px;font-weight:700">SUNSET</span></div>
+                <div style="font-size:11px;font-weight:600;color:#ea580c">Sunset Orange</div>
+              </div>
+            </div>
+          </div>
           <div class="settings-card"><div class="sc-title">Restaurant Info</div><div class="sc-sub">Basic details update karein</div><div class="inp-group"><label class="inp-label">Restaurant Name</label><input class="inp" id="set-rname"></div><div class="inp-group"><label class="inp-label">Phone</label><input class="inp" id="set-phone" placeholder="+91 98765 43210"></div><div class="inp-group"><label class="inp-label">Address</label><input class="inp" id="set-addr" placeholder="Restaurant address"></div><button class="btn btn-primary" onclick="saveSettings()">Save Changes</button></div>
           <div class="settings-card">
   <div class="sc-title">Table & GST Settings</div>
@@ -1086,20 +1299,23 @@ textarea.inp { resize: vertical; min-height: 100px; }
 ===================================================== -->
 <div class="screen" id="s-menu">
   <div class="menu-nav">
-    <div><div class="menu-rname" id="menu-rname">Restaurant</div><div style="font-size:11px;color:var(--muted)">Digital Menu</div></div>
-    <div class="table-tag">Table <span id="cur-table">1</span></div>
+    <div>
+      <div class="menu-rname" id="menu-rname">Restaurant</div>
+      <div class="menu-sub">✨ Digital Menu</div>
+    </div>
+    <div class="table-tag">TABLE <span id="cur-table">1</span></div>
   </div>
   <div class="cat-strip" id="menu-cats"></div>
   <div class="menu-items" id="menu-list"></div>
-  <div style="height:110px"></div>
+  <div style="height:80px"></div>
   <div class="cust-action-bar">
-    <button class="cust-btn" onclick="openM('m-waiter')">Call Waiter</button>
-    <button class="cust-btn" id="track-btn" onclick="showScreen('s-track')" style="display:none;background:var(--ink);color:white;border-radius:0;animation:pulse 1.5s ease-in-out infinite">📍 Track Order</button>
-    <button class="cust-btn" onclick="showScreen('s-feedback')">Give Feedback</button>
+    <button class="cust-btn" onclick="openM('m-waiter')">🔔 Waiter</button>
+    <button class="cust-btn" id="track-btn" onclick="showScreen('s-track')" style="display:none;background:var(--mt-btn,var(--ink));color:var(--mt-btn-text,white);animation:pulse 1.5s ease-in-out infinite">📍 Track</button>
+    <button class="cust-btn" onclick="showScreen('s-feedback')">⭐ Feedback</button>
   </div>
-  <div class="cart-float" id="cart-float" onclick="showScreen('s-cart')">
-    <div class="cf-left"><div class="cf-cnt" id="cf-cnt">0</div><div class="cf-txt">View Cart</div></div>
-    <div class="cf-total">Rs <span id="cf-total">0</span></div>
+  <div class="cart-float" id="cart-float" onclick="showScreen('s-cart')" style="background:var(--mt-btn,var(--ink))">
+    <div class="cf-left"><div class="cf-cnt" id="cf-cnt" style="background:var(--mt-accent,var(--gold));color:var(--mt-header,var(--ink))">0</div><div class="cf-txt">View Cart</div></div>
+    <div class="cf-total" style="color:var(--mt-btn-text,white)">Rs <span id="cf-total">0</span></div>
   </div>
 </div>
 
@@ -1225,35 +1441,99 @@ textarea.inp { resize: vertical; min-height: 100px; }
 
 <!-- ADMIN PANEL -->
 <div class="screen" id="s-admin" style="background:var(--bg);min-height:100vh">
-  <div style="background:var(--ink);padding:16px 24px;display:flex;align-items:center;justify-content:space-between">
+  <div style="background:var(--ink);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100">
     <div>
       <div style="font-family:var(--fd);font-size:20px;color:white">MenuZy Admin</div>
       <div style="font-size:11px;color:rgba(255,255,255,0.5)">Super Admin Panel</div>
     </div>
-    <button class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.3);font-size:12px" onclick="showS('s-landing')">← Exit</button>
-  </div>
-  <div style="max-width:900px;margin:0 auto;padding:24px 16px">
-    <!-- Stats -->
-    <div class="stats-row" style="margin-bottom:24px">
-      <div class="stat-card"><div class="sc-label">Total Restaurants</div><div class="sc-value" id="adm-total">0</div><div class="sc-sub">Registered</div></div>
-      <div class="stat-card"><div class="sc-label">Active Trials</div><div class="sc-value" id="adm-trials">0</div><div class="sc-sub">14 day trial</div></div>
-      <div class="stat-card"><div class="sc-label">Paid Subscribers</div><div class="sc-value" id="adm-paid">0</div><div class="sc-sub">Active plans</div></div>
-      <div class="stat-card"><div class="sc-label">This Month Revenue</div><div class="sc-value" id="adm-rev">Rs 0</div><div class="sc-sub">Subscriptions</div></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.3);font-size:12px" onclick="loadAdminData()">🔄 Refresh</button>
+      <button class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.3);font-size:12px" onclick="showS('s-landing')">← Exit</button>
     </div>
-    <!-- Restaurant List -->
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
-      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-        <div style="font-family:var(--fd);font-size:18px">All Restaurants</div>
-        <button class="btn btn-primary btn-sm" onclick="loadAdminData()">🔄 Refresh</button>
+  </div>
+
+  <!-- Tabs -->
+  <div style="background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;display:flex;gap:0">
+    <button id="adm-tab-restaurants" onclick="admTab('restaurants')" style="padding:14px 20px;border:none;background:none;font-weight:600;font-size:13px;border-bottom:2px solid var(--ink);cursor:pointer">🏪 Restaurants</button>
+    <button id="adm-tab-notifications" onclick="admTab('notifications')" style="padding:14px 20px;border:none;background:none;font-weight:400;font-size:13px;border-bottom:2px solid transparent;cursor:pointer;position:relative">
+      🔔 Notifications
+      <span id="adm-notif-badge" style="display:none;position:absolute;top:8px;right:4px;background:#ef4444;color:white;border-radius:50%;width:16px;height:16px;font-size:9px;display:flex;align-items:center;justify-content:center">0</span>
+    </button>
+    <button id="adm-tab-message" onclick="admTab('message')" style="padding:14px 20px;border:none;background:none;font-weight:400;font-size:13px;border-bottom:2px solid transparent;cursor:pointer">✉️ Message</button>
+  </div>
+
+  <div style="max-width:960px;margin:0 auto;padding:24px 16px">
+
+    <!-- RESTAURANTS TAB -->
+    <div id="adm-sec-restaurants">
+      <div class="stats-row" style="margin-bottom:24px">
+        <div class="stat-card"><div class="sc-label">Total Restaurants</div><div class="sc-value" id="adm-total">0</div><div class="sc-sub">Registered</div></div>
+        <div class="stat-card"><div class="sc-label">Active Trials</div><div class="sc-value" id="adm-trials">0</div><div class="sc-sub">14 day trial</div></div>
+        <div class="stat-card"><div class="sc-label">Paid Subscribers</div><div class="sc-value" id="adm-paid">0</div><div class="sc-sub">Active plans</div></div>
+        <div class="stat-card"><div class="sc-label">Monthly Revenue</div><div class="sc-value" id="adm-rev">Rs 0</div><div class="sc-sub">Subscriptions</div></div>
       </div>
-      <div style="overflow-x:auto">
-        <table class="d-table">
-          <thead><tr><th>#</th><th>Restaurant</th><th>Owner</th><th>Email</th><th>Joined</th><th>Plan</th><th>Status</th><th>Action</th></tr></thead>
-          <tbody id="adm-table-body">
-            <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Loading...</td></tr>
-          </tbody>
-        </table>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+        <div style="overflow-x:auto">
+          <table class="d-table">
+            <thead><tr><th>#</th><th>Restaurant</th><th>Owner</th><th>Email</th><th>Joined</th><th>Trial Expires</th><th>Plan</th><th>Actions</th></tr></thead>
+            <tbody id="adm-table-body">
+              <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
+    </div>
+
+    <!-- NOTIFICATIONS TAB -->
+    <div id="adm-sec-notifications" style="display:none">
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-family:var(--fd);font-size:18px">New Signups & Notifications</div>
+        <div id="adm-notif-list" style="padding:16px">
+          <div style="text-align:center;padding:40px;color:var(--muted)">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESSAGE TAB -->
+    <div id="adm-sec-message" style="display:none">
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:24px">
+        <div style="font-family:var(--fd);font-size:18px;margin-bottom:20px">Restaurant ko Message Bhejo</div>
+        <div class="inp-group">
+          <label class="inp-label">Recipient</label>
+          <select class="inp" id="adm-msg-to">
+            <option value="all">📢 Sabko (Broadcast)</option>
+          </select>
+        </div>
+        <div class="inp-group">
+          <label class="inp-label">Subject</label>
+          <input class="inp" id="adm-msg-subject" placeholder="e.g. Important update about MenuZy">
+        </div>
+        <div class="inp-group">
+          <label class="inp-label">Message</label>
+          <textarea class="inp" id="adm-msg-body" rows="5" placeholder="Apna message likho..."></textarea>
+        </div>
+        <div style="background:var(--gold-light);border:1px solid var(--gold);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--gold)">
+          ⚠️ Message Supabase mein save hoga — restaurant dashboard mein notification dikhega
+        </div>
+        <button class="btn btn-primary" style="width:100%;padding:13px" onclick="sendAdminMessage()">📨 Message Bhejo</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: SET TRIAL EXPIRY -->
+<div class="mov" id="m-trial-date">
+  <div class="modal" style="max-width:380px">
+    <div style="font-family:var(--fd);font-size:20px;margin-bottom:4px">Trial Date Set Karo</div>
+    <div id="trial-resto-name" style="font-size:13px;color:var(--muted);margin-bottom:20px"></div>
+    <div class="inp-group">
+      <label class="inp-label">Trial Expire Date</label>
+      <input class="inp" type="date" id="trial-date-input">
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-outline" style="flex:1" onclick="closeM('m-trial-date')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" onclick="saveTrialDate()">Save</button>
     </div>
   </div>
 </div>
@@ -2266,16 +2546,28 @@ function renderBilling(){
     </tr>`;
   }).join('');
 }
+let admTrialRestoId=null;
+
+function admTab(tab){
+  ['restaurants','notifications','message'].forEach(t=>{
+    document.getElementById('adm-sec-'+t).style.display=t===tab?'block':'none';
+    const btn=document.getElementById('adm-tab-'+t);
+    if(btn){btn.style.fontWeight=t===tab?'600':'400';btn.style.borderBottom=t===tab?'2px solid var(--ink)':'2px solid transparent';}
+  });
+  if(tab==='notifications') loadAdminNotifs();
+  if(tab==='message') loadMsgRecipients();
+}
+
 async function loadAdminData(){
   try{
     const{data:restaurants}=await sb.from('restaurants').select('*').order('created_at',{ascending:false});
-    if(!restaurants){return;}
+    if(!restaurants) return;
     
-    const total=restaurants.length;
-    const trials=restaurants.filter(r=>r.plan==='trial'||!r.plan).length;
-    const paid=restaurants.filter(r=>r.plan==='starter'||r.plan==='professional'||r.plan==='enterprise').length;
     const planPrices={'starter':999,'professional':1999,'enterprise':4999};
-    const monthRev=restaurants.filter(r=>r.plan&&planPrices[r.plan]).reduce((s,r)=>s+(planPrices[r.plan]||0),0);
+    const total=restaurants.length;
+    const trials=restaurants.filter(r=>!r.plan||r.plan==='trial').length;
+    const paid=restaurants.filter(r=>planPrices[r.plan]).length;
+    const monthRev=restaurants.filter(r=>planPrices[r.plan]).reduce((s,r)=>s+(planPrices[r.plan]||0),0);
     
     document.getElementById('adm-total').textContent=total;
     document.getElementById('adm-trials').textContent=trials;
@@ -2286,25 +2578,30 @@ async function loadAdminData(){
     tbody.innerHTML=restaurants.map((r,i)=>{
       const joined=r.created_at?new Date(r.created_at).toLocaleDateString('en-IN'):'—';
       const plan=r.plan||'trial';
-      const planColor=plan==='trial'?'tag-gold':plan==='enterprise'?'tag-amber':'tag-green';
-      const subStatus=r.subscription_status||'active';
-      const statusColor=subStatus==='active'?'tag-green':subStatus==='expired'?'tag-muted':'tag-gold';
+      const trialExp=r.trial_expires?new Date(r.trial_expires).toLocaleDateString('en-IN'):'—';
+      const isExpired=r.trial_expires&&new Date(r.trial_expires)<new Date();
+      const planColor=plan==='trial'?(isExpired?'tag-muted':'tag-gold'):planPrices[plan]?'tag-green':'tag-muted';
       return `<tr>
         <td>${i+1}</td>
         <td><strong>${r.name}</strong></td>
         <td>${r.owner_name||'—'}</td>
-        <td style="font-size:12px">${r.email}</td>
-        <td style="font-size:12px">${joined}</td>
-        <td><span class="tag ${planColor}">${plan}</span></td>
-        <td><span class="tag ${statusColor}">${subStatus}</span></td>
+        <td style="font-size:11px">${r.email}</td>
+        <td style="font-size:11px">${joined}</td>
+        <td>
+          <span style="font-size:11px;color:${isExpired?'#ef4444':'var(--muted)'}">${trialExp}</span>
+          <button class="btn btn-ghost btn-xs" style="font-size:10px;margin-left:4px" onclick="openTrialDate('${r.id}','${r.name}','${r.trial_expires||''}')">✏️</button>
+        </td>
         <td>
           <select class="inp" style="padding:4px 8px;font-size:11px;height:auto" onchange="updateRestoPlan('${r.id}',this.value)">
             <option value="trial" ${plan==='trial'?'selected':''}>Trial</option>
-            <option value="starter" ${plan==='starter'?'selected':''}>Starter</option>
-            <option value="professional" ${plan==='professional'?'selected':''}>Professional</option>
-            <option value="enterprise" ${plan==='enterprise'?'selected':''}>Enterprise</option>
+            <option value="starter" ${plan==='starter'?'selected':''}>Starter ₹999</option>
+            <option value="professional" ${plan==='professional'?'selected':''}>Pro ₹1999</option>
+            <option value="enterprise" ${plan==='enterprise'?'selected':''}>Enterprise ₹4999</option>
             <option value="expired" ${plan==='expired'?'selected':''}>Expired</option>
           </select>
+        </td>
+        <td>
+          <button class="btn btn-ghost btn-xs" style="font-size:10px" onclick="admTab('message');setTimeout(()=>{document.getElementById('adm-msg-to').value='${r.id}';},100)">✉️ Msg</button>
         </td>
       </tr>`;
     }).join('');
@@ -2313,15 +2610,154 @@ async function loadAdminData(){
   }
 }
 
-async function updateRestoPlan(restoId, newPlan){
+async function updateRestoPlan(restoId,newPlan){
   try{
     await sb.from('restaurants').update({plan:newPlan,subscription_status:newPlan==='expired'?'expired':'active'}).eq('id',restoId);
-    notify('Updated','Plan updated successfully ✅');
+    notify('Updated','Plan updated ✅');
     loadAdminData();
-  }catch(e){ notify('Error','Update failed','error'); }
+  }catch(e){notify('Error','Update failed','error');}
+}
+
+function openTrialDate(restoId,restoName,currentDate){
+  admTrialRestoId=restoId;
+  document.getElementById('trial-resto-name').textContent=restoName;
+  const inp=document.getElementById('trial-date-input');
+  if(currentDate) inp.value=currentDate.split('T')[0];
+  else{
+    const d=new Date(); d.setDate(d.getDate()+14);
+    inp.value=d.toISOString().split('T')[0];
+  }
+  openM('m-trial-date');
+}
+
+async function saveTrialDate(){
+  if(!admTrialRestoId) return;
+  const date=document.getElementById('trial-date-input').value;
+  if(!date){notify('Error','Date select karo','error');return;}
+  try{
+    await sb.from('restaurants').update({trial_expires:date}).eq('id',admTrialRestoId);
+    notify('Saved','Trial date set ho gayi ✅');
+    closeM('m-trial-date');
+    loadAdminData();
+  }catch(e){notify('Error','Save failed','error');}
+}
+
+async function loadAdminNotifs(){
+  const el=document.getElementById('adm-notif-list');
+  el.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+  try{
+    const{data}=await sb.from('admin_notifications').select('*').order('created_at',{ascending:false}).limit(50);
+    if(!data||!data.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Koi notifications nahi</div>';return;}
+    el.innerHTML=data.map(n=>{
+      const time=new Date(n.created_at).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      const icon=n.type==='new_signup'?'🎉':n.type==='message_sent'?'✉️':'🔔';
+      return `<div style="display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:24px">${icon}</div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:14px">${n.restaurant_name||'System'}</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:2px">${n.message}</div>
+          <div style="font-size:11px;color:var(--border2);margin-top:4px">${time}</div>
+        </div>
+      </div>`;
+    }).join('');
+    // Update badge
+    const badge=document.getElementById('adm-notif-badge');
+    if(badge){badge.textContent=data.length;badge.style.display='flex';}
+  }catch(e){el.innerHTML='<div style="color:red;padding:20px">Error loading: '+e.message+'</div>';}
+}
+
+async function loadMsgRecipients(){
+  const sel=document.getElementById('adm-msg-to');
+  sel.innerHTML='<option value="all">📢 Sabko (Broadcast)</option>';
+  try{
+    const{data}=await sb.from('restaurants').select('id,name,email').order('name');
+    if(data) data.forEach(r=>{
+      const opt=document.createElement('option');
+      opt.value=r.id; opt.textContent=r.name+' ('+r.email+')';
+      sel.appendChild(opt);
+    });
+  }catch(e){}
+}
+
+async function sendAdminMessage(){
+  const to=document.getElementById('adm-msg-to').value;
+  const subject=document.getElementById('adm-msg-subject').value.trim();
+  const body=document.getElementById('adm-msg-body').value.trim();
+  if(!subject||!body){notify('Error','Subject aur message dono bharo','error');return;}
+  
+  try{
+    if(to==='all'){
+      // Broadcast — save as admin_notification
+      const{data:restos}=await sb.from('restaurants').select('id,name');
+      if(restos){
+        for(const r of restos){
+          await sb.from('admin_notifications').insert({
+            type:'admin_message',
+            restaurant_name:r.name,
+            email:r.id,
+            message:'['+subject+'] '+body
+          });
+          // Save in restaurant_messages for dashboard notification
+          await sb.from('restaurant_messages').insert({
+            restaurant_id:r.id,
+            subject,
+            message:body,
+            from_admin:true
+          }).catch(e=>{});
+        }
+      }
+    } else {
+      const{data:r}=await sb.from('restaurants').select('name,email').eq('id',to).single();
+      await sb.from('admin_notifications').insert({
+        type:'admin_message',
+        restaurant_name:r?.name||'Restaurant',
+        email:r?.email||to,
+        message:'['+subject+'] '+body
+      });
+      await sb.from('restaurant_messages').insert({
+        restaurant_id:to,
+        subject,
+        message:body,
+        from_admin:true
+      }).catch(e=>{});
+    }
+    
+    document.getElementById('adm-msg-subject').value='';
+    document.getElementById('adm-msg-body').value='';
+    notify('Sent!','Message bhej diya gaya ✅');
+  }catch(e){notify('Error','Send failed: '+e.message,'error');}
 }
 
 function renderFBView(){document.getElementById('st-fb').textContent=feedbacks.length;const el=document.getElementById('fb-view');if(!feedbacks.length){el.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:var(--r)"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">No Feedback</div><div>Customer feedback will appear here</div></div>`;return;}el.innerHTML='<div style="display:flex;flex-direction:column;gap:8px">'+feedbacks.map(f=>`<div style="background:var(--white);border:1px solid var(--border);border-left:3px solid var(--gold);padding:18px 20px;border-radius:var(--r)"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-weight:600">Table ${f.table}</span><span style="font-size:11px;color:var(--muted)">${f.time}</span></div><div style="font-size:11px;color:var(--muted);margin-bottom:6px">Food: ${'★'.repeat(f.food)} — Service: ${'★'.repeat(f.svc)}</div><div style="font-size:13px;font-style:italic">"${f.text}"</div></div>`).join('')+'</div>';}
+function selectTheme(theme){
+  if(!R) return;
+  // Update UI
+  document.querySelectorAll('.theme-opt').forEach(el=>el.style.border='2px solid var(--border)');
+  const sel = document.getElementById('th-'+theme);
+  if(sel) sel.style.border='2px solid var(--ink)';
+  // Save to localStorage
+  localStorage.setItem('tt_theme_'+R.id, theme);
+  // Apply theme preview
+  applyMenuTheme(theme);
+  notify('Theme Saved','Customer menu update ho gaya! ✅');
+}
+
+function applyMenuTheme(theme){
+  const menuEl = document.getElementById('s-menu');
+  if(!menuEl) return;
+  menuEl.className = 'screen theme-'+(theme||'classic');
+}
+
+function loadMenuTheme(){
+  if(!R) return;
+  const saved = localStorage.getItem('tt_theme_'+R.id) || 'classic';
+  applyMenuTheme(saved);
+  // Update selected state in settings
+  document.querySelectorAll('.theme-opt').forEach(el=>el.style.border='2px solid var(--border)');
+  const sel = document.getElementById('th-'+saved);
+  if(sel) sel.style.border='2px solid var(--ink)';
+}
+
 function loadSettingsValues(){
   if(!R) return;
   // Restaurant name

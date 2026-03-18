@@ -2100,7 +2100,7 @@ function stab(btn,id){
   if(id==='feedbacks')renderFBView();
   if(id==='staff')renderStaff();
   if(id==='orders')renderOrders();
-  if(id==='settings')loadSettingsValues();
+  if(id==='settings'){loadSettingsValues();loadMenuTheme();}
 }
 
 function renderMenu(f){
@@ -2770,12 +2770,17 @@ function applyMenuTheme(theme){
 
 function loadMenuTheme(){
   if(!R) return;
-  const saved = localStorage.getItem('tt_theme_'+R.id) || 'classic';
+  // Priority: localStorage > Supabase R.menu_theme > default classic
+  const saved = localStorage.getItem('tt_theme_'+R.id) || R.menu_theme || 'classic';
+  // Sync localStorage with DB value
+  localStorage.setItem('tt_theme_'+R.id, saved);
   applyMenuTheme(saved);
-  // Update selected state in settings
-  document.querySelectorAll('.theme-opt').forEach(el=>el.style.border='2px solid var(--border)');
-  const sel = document.getElementById('th-'+saved);
-  if(sel) sel.style.border='2px solid var(--ink)';
+  // Update selected state in settings UI
+  setTimeout(()=>{
+    document.querySelectorAll('.theme-opt').forEach(el=>el.style.border='2px solid var(--border)');
+    const sel = document.getElementById('th-'+saved);
+    if(sel) sel.style.border='2px solid var(--ink)';
+  }, 100);
 }
 
 function loadSettingsValues(){

@@ -2761,7 +2761,11 @@ async function selectTheme(theme){
 function applyMenuTheme(theme){
   const menuEl = document.getElementById('s-menu');
   if(!menuEl) return;
-  menuEl.className = 'screen theme-'+(theme||'classic');
+  // Remove old theme classes, keep 'screen' and 'active' if present
+  const isActive = menuEl.classList.contains('active');
+  menuEl.className = 'screen theme-'+(theme||'classic')+(isActive?' active':'');
+  // Also update background color directly
+  menuEl.style.background = '';
 }
 
 function loadMenuTheme(){

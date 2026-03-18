@@ -1899,7 +1899,7 @@ async function loadWaiterCallsFromDB(){
     const{data}=await sb.from('waiter_calls')
       .select('*')
       .eq('restaurant_id', R.id)
-      .eq('status','pending')
+      .eq('status','pending')  // Only pending - done ones won't reload
       .gte('created_at', today.toISOString())
       .order('created_at', {ascending:false});
     if(data && data.length){
@@ -1909,6 +1909,10 @@ async function loadWaiterCallsFromDB(){
         time:new Date(d.created_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
         type:'Waiter Assistance Requested'
       }));
+      updateBadges();
+      renderRequests();
+    } else {
+      calls = [];
       updateBadges();
     }
   }catch(e){ console.log('Load waiter calls error:', e); }
@@ -2424,11 +2428,18 @@ async function clearTable(){
   clearingTable = null;
 }
 function renderRequests(){updateBadges();const el=document.getElementById('req-list');if(!calls.length){el.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:var(--r)"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">All Clear</div><div>No pending requests</div></div>`;return;}el.innerHTML=calls.map((c,i)=>`<div class="req-item"><div><div class="req-tbl">Table ${c.table}</div><div class="req-type">${c.type}</div><div class="req-time">${c.time}</div></div><button class="btn btn-ghost btn-sm" onclick="dimReq(${i})">Done</button></div>`).join('');}
-function dimReq(i){
+async function dimReq(i){
+  const call = calls[i];
   calls.splice(i,1);
   updateBadges();
   renderRequests();
   notify('Done','Request dismissed');
+  // Mark as done in Supabase so it won't come back on reload
+  if(call && call.db_id && R?.id !== 'demo'){
+    try{
+      await sb.from('waiter_calls').update({status:'done'}).eq('id', call.db_id);
+    }catch(e){}
+  }
 }
 function renderAnalytics(){
   const gstRate=getGSTRate(); const scRate=getSCRate();
@@ -2729,7 +2740,7 @@ async function sendAdminMessage(){
 }
 
 function renderFBView(){document.getElementById('st-fb').textContent=feedbacks.length;const el=document.getElementById('fb-view');if(!feedbacks.length){el.innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);background:var(--white);border:1px solid var(--border);border-radius:var(--r)"><div style="font-family:var(--fd);font-size:22px;color:var(--border2);margin-bottom:8px">No Feedback</div><div>Customer feedback will appear here</div></div>`;return;}el.innerHTML='<div style="display:flex;flex-direction:column;gap:8px">'+feedbacks.map(f=>`<div style="background:var(--white);border:1px solid var(--border);border-left:3px solid var(--gold);padding:18px 20px;border-radius:var(--r)"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-weight:600">Table ${f.table}</span><span style="font-size:11px;color:var(--muted)">${f.time}</span></div><div style="font-size:11px;color:var(--muted);margin-bottom:6px">Food: ${'★'.repeat(f.food)} — Service: ${'★'.repeat(f.svc)}</div><div style="font-size:13px;font-style:italic">"${f.text}"</div></div>`).join('')+'</div>';}
-function selectTheme(theme){
+async function selectTheme(theme){
   if(!R) return;
   // Update UI
   document.querySelectorAll('.theme-opt').forEach(el=>el.style.border='2px solid var(--border)');
@@ -2737,6 +2748,11 @@ function selectTheme(theme){
   if(sel) sel.style.border='2px solid var(--ink)';
   // Save to localStorage
   localStorage.setItem('tt_theme_'+R.id, theme);
+  // Save to Supabase so customer also gets it
+  try{
+    await sb.from('restaurants').update({menu_theme:theme}).eq('id',R.id);
+    R.menu_theme = theme;
+  }catch(e){}
   // Apply theme preview
   applyMenuTheme(theme);
   notify('Theme Saved','Customer menu update ho gaya! ✅');
